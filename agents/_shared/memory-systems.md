@@ -24,7 +24,11 @@ You have access to three persistent memory systems via MCP tools:
 **RULES:**
 - At session start: ALWAYS call `engram_mem_context` and `brain-router_brain_context` to restore context
 - Before working on known projects: ALWAYS search engram and mempalace for prior decisions and patterns
-- After completing significant work: ALWAYS save observations via `engram_mem_save` and `brain-router_brain_save` (NOT mempalace — it's read-only in the save rhythm)
+- **MANDATORY CHECKPOINTS** (3 triggers — see orchestrator's Mandatory Memory Checkpoint Protocol):
+  - **C1 Pre-Compaction**: Save to `engram_mem_save` + ledger file before ANY compaction
+  - **C2 Post-Delegation**: Save specialist's key finding to `engram_mem_save` after notable results
+  - **C3 Session-End**: Save full summary via `engram_mem_session_summary` + `brain-router_brain_save`
+- Mempalace is READ-ONLY — do not write to it during normal save rhythm
 - When uncertain about past decisions: search before guessing
 - Memory systems survive across sessions — use them to maintain continuity
 

@@ -47,10 +47,75 @@ Use memory findings to improve routing:
 - **Past pattern exists** → follow established convention, don't invent new approach
 - **Past failure exists** → avoid the same approach, try alternative
 
-### Post-Task Memory Save (after significant work)
-- Save decisions via `engram_mem_save` and `brain-router_brain_save`
-- Mempalace is READ-ONLY — do not write to it during save rhythm. Checkpoint/ledger files on disk handle verbatim storage.
-- Never save trivial changes — only decisions, architecture, bugfixes, patterns, and learnings
+### Mandatory Memory Checkpoint Protocol
+
+**Design philosophy:** Save at the minimum effective frequency. Too often = slowdown. Too rarely = memory loss. The right frequency is anchored to **risk events** — moments where context is most likely to be lost.
+
+#### The 3 Checkpoint Triggers
+
+| # | Trigger | When It Fires | What to Save | Cost |
+|---|---|---|---|---|
+| **C1** | **Pre-Compaction** | Before any context compaction (auto or manual) | Current task, decisions made this session, files modified, next action | ~50 tokens |
+| **C2** | **Post-Delegation** | When a specialist agent returns results | The specialist's key finding/decision (1 line). Skip if nothing notable. | ~30 tokens |
+| **C3** | **Session-End** | On wrap-up, handoff, or session close | Comprehensive session summary (what, decisions, files, next steps) | ~200 tokens |
+
+#### C1: Pre-Compaction Checkpoint (MANDATORY — highest priority)
+
+This is the most critical save. Compaction is unpredictable and system-triggered. When it fires, everything not yet persisted is at risk.
+
+**Before compacting, save to BOTH:**
+
+1. `engram_mem_save` — structured snapshot:
+   ```
+   title: "Session checkpoint: [brief description]"
+   content: "**What**: [current task in 1 sentence]\n**Decisions**: [key decisions with rationale]\n**Files**: [modified file paths]\n**Next**: [exactly where to pick up]"
+   type: "decision"
+   topic_key: "session/[project]"
+   ```
+
+2. Ledger file on disk (existing protocol) — `thoughts/ledgers/CONTINUITY_*.md`
+
+**Why both:** engram survives across sessions and is machine-searchable. The ledger file is a human-readable backup that the generalist can re-read post-compaction.
+
+#### C2: Post-Delegation Checkpoint (MANDATORY after specialist returns)
+
+When a specialist agent (explorer, strategist, researcher, designer, auditor) returns results, save the **outcome** — not the full output. Only save if the specialist produced a notable finding or decision.
+
+```
+engram_mem_save(
+  title: "[specialist]: [one-line finding]",
+  content: "**What**: [finding/decision in 1 sentence]\n**Where**: [affected files if any]",
+  type: "decision" | "bugfix" | "pattern" | "architecture",
+  topic_key: "[relevant topic]"
+)
+```
+
+**Skip C2 when:** Specialist found nothing, search returned no results, or the task was trivial (cosmetic edit, single-line fix).
+
+#### C3: Session-End Checkpoint (MANDATORY on wrap-up)
+
+When the user signals they're done, or when handing off:
+
+1. `engram_mem_session_summary` — full structured summary (Goal, Discoveries, Accomplished, Relevant Files)
+2. `brain-router_brain_save` — top 3 decisions from the session as structured facts
+
+#### What NOT to Save (keeps overhead low)
+- Tool call outputs (re-readable from disk)
+- Conversation filler and acknowledgments
+- Exploratory dead-ends (only save the conclusion)
+- Every message (only at the 3 checkpoints above)
+- File contents (files exist on disk — save paths, not contents)
+
+#### Token Budget Per Session
+- Typical session (5-10 delegations): ~300-500 tokens total for all saves
+- Heavy session (20+ delegations): ~800 tokens total
+- This is <0.5% of typical context window usage
+
+#### Enforcement
+- C1 is non-negotiable. If you detect compaction approaching, save FIRST.
+- C2 fires after EVERY delegation that produces a notable result. No exceptions.
+- C3 fires at session end. If the user ends abruptly, C1 + C2 coverage should be sufficient.
+- If memory systems are unavailable: save to ledger file on disk as fallback.
 
 ## Prompt Enhancement Protocol (Step 0 — runs before decision tree)
 

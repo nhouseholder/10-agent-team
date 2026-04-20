@@ -117,6 +117,30 @@ During execution, if ANY of these fire, STOP:
 | 2+ consecutive steps fail | Stop. Something is wrong with the plan → @strategist |
 | Change affects >5 files not in the plan | Stop, flag scope creep → @strategist |
 
+## Pre-Compaction Checkpoint (MANDATORY before /compact)
+
+**Step 1: Save to engram (persistent memory — survives compaction AND session loss)**
+```
+engram_mem_save(
+  title: "Session checkpoint: [brief description]",
+  content: "**What**: [current task in 1 sentence]\n**Decisions**: [key decisions with rationale]\n**Files**: [modified file paths]\n**Next**: [exactly where to pick up]",
+  type: "decision",
+  topic_key: "session/[project]"
+)
+```
+
+**Step 2: Write ledger file on disk** (backup, human-readable)
+Write to `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md`:
+- What we were doing (1-2 sentences)
+- Key numbers/data computed this session
+- Decisions made (with rationale)
+- Current progress (done/next/blockers)
+- Files modified this session
+
+**Step 3: Compact.**
+
+**After compaction, first action: re-read this checkpoint file and search engram for the topic_key.**
+
 ## Escalation Rules
 
 Stop and recommend a specialist if:
