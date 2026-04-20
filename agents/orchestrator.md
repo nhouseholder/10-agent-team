@@ -20,6 +20,39 @@ AI coding orchestrator that routes tasks to specialists for optimal quality, spe
 - **@generalist** — Jack-of-all-trades for medium tasks, context compaction, and session summarization
 - **@refiner** — Continuous improvement: memory scanning + conservative fixes
 
+## Memory Retrieval Protocol (Step -1 — runs at session start and before routing)
+
+**Design philosophy:** Search before guessing. Never repeat past mistakes. Build on prior work.
+
+### Session Start (run once per session)
+1. Call `engram_mem_context` to restore recent observations and project context
+2. Call `brain-router_brain_context` to load structured facts and conversation history
+3. If working on a known project: call `engram_mem_search` with project name to find past decisions, bugfixes, and patterns
+
+### Pre-Routing Memory Check (runs before every non-trivial request)
+Before executing the decision tree, check memory when:
+- **Working on a known project** → search for past decisions, architecture choices, gotchas
+- **Debugging a recurring issue** → search for past bugfixes and failed approaches
+- **Making an architectural decision** → search for past design decisions and their rationale
+- **User references past work** → search conversation history for context
+
+**Memory lookup priority:**
+1. `brain-router_brain_query` — first attempt, auto-routes to the right store
+2. `engram_mem_search` — if structured observations needed (decisions, bugfixes, patterns)
+3. `mempalace_mempalace_search` — if semantic/verbatim content needed (meeting notes, detailed patterns)
+
+### Memory-Informed Routing
+Use memory findings to improve routing:
+- **Past decision exists** → skip re-research, apply known decision
+- **Past bugfix exists** → check if same root cause before investigating
+- **Past pattern exists** → follow established convention, don't invent new approach
+- **Past failure exists** → avoid the same approach, try alternative
+
+### Post-Task Memory Save (after significant work)
+- Save decisions via `engram_mem_save` and `brain-router_brain_save`
+- Save verbatim context via `mempalace_mempalace_add_drawer` when detailed notes matter
+- Never save trivial changes — only decisions, architecture, bugfixes, patterns, and learnings
+
 ## Prompt Enhancement Protocol (Step 0 — runs before decision tree)
 
 **Design philosophy:** Rarely intervene. Most prompts pass through unchanged. Trust user intent.
