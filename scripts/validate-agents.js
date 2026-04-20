@@ -45,6 +45,18 @@ const REQUIRED_SECTIONS = [
   { key: "Constraints", pattern: /##\s+Constraints/i },
 ];
 
+// Subagent-only role prompts that get context from the orchestrator's briefing.
+// These don't need full agent sections (Memory, Escalation, etc.) because the
+// orchestrator handles all context gathering and lifecycle management.
+const SUBAGENT_ROLE_PROMPTS = [
+  "council-advocate-for.md",
+  "council-advocate-against.md",
+  "council-judge.md",
+  // council.md is a protocol reference document, not an executable agent.
+  // The orchestrator executes the council protocol directly.
+  "council.md",
+];
+
 // Output format tags that must be present
 const OUTPUT_FORMAT_TAGS = ["<summary>", "<next>"];
 
@@ -82,6 +94,21 @@ function validateAgent(filename) {
   const content = fs.readFileSync(filepath, "utf-8");
   const errors = [];
   const warnings = [];
+
+  // Subagent-only role prompts get context from orchestrator briefing,
+  // not from their own sections. Only validate frontmatter.
+  const isSubagentRole = SUBAGENT_ROLE_PROMPTS.includes(filename);
+  if (isSubagentRole) {
+    const fm = parseFrontmatter(content);
+    if (!fm) {
+      errors.push("Missing frontmatter (--- block)");
+    } else {
+      for (const field of REQUIRED_FRONTMATTER) {
+        if (!fm[field]) errors.push(`Missing frontmatter field: "${field}"`);
+      }
+    }
+    return { errors, warnings, isSubagentRole: true };
+  }
 
   // 1. Frontmatter
   const fm = parseFrontmatter(content);
@@ -195,7 +222,8 @@ function main() {
       result.errors.length === 0
         ? pass("PASS")
         : fail(`FAIL (${result.errors.length} error${result.errors.length > 1 ? "s" : ""})`);
-    console.log(`  ${status}  ${file}`);
+    const tag = result.isSubagentRole ? " (subagent role prompt)" : "";
+    console.log(`  ${status}  ${file}${tag}`);
 
     for (const err of result.errors) {
       console.log(`    ${fail("✗")} ${err}`);

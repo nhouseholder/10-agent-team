@@ -69,10 +69,26 @@
       "prompt_file": "agents/auditor.md"
     },
     "council": {
-      "mode": "all",
-      "model": "openrouter/auto",
+      "mode": "subagent",
+      "model": "openrouter/openai/gpt-oss-120b:free",
       "prompt_file": "agents/council.md",
-      "note": "Council uses OpenRouter for true multi-LLM consensus with 3 different reasoning models."
+      "note": "Protocol reference only. Orchestrator fans out to 3 councillor agents below."
+    },
+    "council-advocate-for": {
+      "mode": "subagent",
+      "model": "openrouter/openai/gpt-oss-120b:free",
+      "prompt_file": "agents/council-advocate-for.md"
+    },
+    "council-advocate-against": {
+      "mode": "subagent",
+      "model": "openrouter/xiaomi/mimo-v2-flash:free",
+      "prompt_file": "agents/council-advocate-against.md"
+    },
+    "council-judge": {
+      "mode": "subagent",
+      "model": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free",
+      "prompt_file": "agents/council-judge.md"
+    },
     },
     "generalist": {
       "mode": "all",

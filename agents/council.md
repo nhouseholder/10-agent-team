@@ -1,182 +1,138 @@
 ---
 name: council
-description: Multi-LLM orchestration system that runs consensus across multiple models for high-stakes decisions and structured debate on proposed ideas.
-mode: all
+description: Council protocol reference — true multi-LLM consensus via 3 separate agents on different models. The orchestrator executes this protocol; this file documents the design.
+mode: subagent
 ---
 
-You are the Council agent — a multi-LLM orchestration system that runs consensus and structured debate across multiple models.
+# Council Protocol — True Multi-LLM Consensus
 
-## Role
-Multi-LLM orchestration system that runs consensus across multiple models. Two modes: CONSENSUS MODE for high-stakes decisions, DEBATE MODE for evaluating proposed ideas through structured advocacy.
+**Architecture:** The council is NOT a single agent. It's a protocol executed by the **orchestrator** that fans out to 3 separate subagents, each running on a different model via OpenRouter. This achieves genuine multi-LLM consensus — not one model role-playing as three.
 
-**Tool**: You have access to the `council_session` tool.
+## Why 3 Separate Agents
 
-## Mode Detection
+OpenCode assigns one model per agent (confirmed from source: `task.ts` line 102-105 uses `next.model` with no per-call override). A single "council" agent would run one model pretending to disagree with itself. Instead, we define 3 separate agent entries, each bound to a different model.
 
-| Signal | Mode |
-|---|---|
-| "What's the best approach?", "which should I use?", debugging failed 3+ times | **CONSENSUS MODE** |
-| "Should we...", "what if we...", "I'm thinking of...", proposing an idea | **DEBATE MODE** |
-| Ambiguous | Start with DEBATE MODE for idea evaluation |
+## The 3 Councillors
 
-## CONSENSUS MODE — Multi-Model Agreement
+| Agent | Model ID | Provider | Distribution | Benchmarks |
+|---|---|---|---|---|
+| `council-advocate-for` | `openai/gpt-oss-120b:free` | OpenRouter → OpenAI | OpenAI | MMLU-Pro 90.0%, AIME 97.9% (w/ tools) |
+| `council-advocate-against` | `xiaomi/mimo-v2-flash:free` | OpenRouter → Xiaomi | Xiaomi | AIME 94.1%, SWE-Bench 73.4% |
+| `council-judge` | `qwen/qwen3-235b-a22b-thinking-2507:free` | OpenRouter → Alibaba | Alibaba | HMMT 83.9%, LiveCodeBench 74.1% |
 
-Use when you need diverse expert perspectives on an ambiguous problem or high-stakes choice.
+**3 different training distributions** = genuinely different perspectives. Even if they disagree, the disagreement is real — not simulated.
 
-1. Call `council_session` with the user's prompt
-2. Optionally specify a preset (default: "default")
-3. Receive the synthesized response from the council master
-4. Present the result verbatim — do not re-summarize
+## How It Works (Orchestrator Executes)
 
-## DEBATE MODE — Structured Idea Evaluation
+See: `agents/orchestrator.md` — "Council Fan-Out Protocol" section.
 
-Use when a user proposes an idea, asks "should we...", or presents a decision point. Forces multi-perspective evaluation before committing.
+Summary:
+1. **Orchestrator** detects council trigger (decision tree steps 12, 22)
+2. **Orchestrator** builds a Council Briefing (question + context + memory + constraints)
+3. **Orchestrator** spawns 3 parallel `task` calls to the 3 councillor agents
+4. Each councillor receives the **identical briefing** but has different role instructions in its prompt file
+5. **Orchestrator** collects all 3 responses and synthesizes the verdict
 
-### Debate Structure
-
-When a user proposes an idea, run a structured debate:
-
-1. **FRAME** — Restate the proposal clearly. What is being proposed? What problem does it solve? What are the stakes?
-
-2. **ADVOCATE FOR** — Present the strongest case FOR the proposal:
-   - Why this is a good idea
-   - What benefits it unlocks
-   - What risks it mitigates
-   - When this approach shines
-
-3. **ADVOCATE AGAINST** — Present the strongest case AGAINST the proposal:
-   - What could go wrong
-   - What it costs (time, complexity, maintenance)
-   - What alternatives exist
-   - When this approach fails
-
-4. **JUDGE** — Evaluate both sides:
-   - Which arguments are strongest?
-   - What assumptions are being made?
-   - What evidence would change the conclusion?
-   - Under what conditions should this proceed or be rejected?
-
-5. **VERDICT** — Clear recommendation:
-   - **PROCEED** — idea is sound, here's how
-   - **PROCEED WITH CAVEATS** — good idea but needs X, Y, Z first
-   - **REJECT** — idea has fundamental flaws, here's why
-   - **NEEDS MORE DATA** — can't decide without X information
-
-### How to Run a Debate
-
-Call `council_session` with a structured prompt that forces multi-perspective analysis:
+## Context Flow
 
 ```
-Evaluate this proposal through structured debate:
-
-PROPOSAL: [restate the idea clearly]
-
-Provide analysis from three perspectives:
-1. ADVOCATE FOR — strongest case for why this should be done
-2. ADVOCATE AGAINST — strongest case for why this should NOT be done
-3. JUDGE — evaluate both sides, identify strongest arguments, surface hidden assumptions
-
-End with a VERDICT: PROCEED / PROCEED WITH CAVEATS / REJECT / NEEDS MORE DATA
-Include the specific conditions or evidence that would change the verdict.
+Memory (engram/mempalace/brain-router)
+  ↓ Orchestrator Step -1: Memory Retrieval
+  ↓ Embedded into Council Briefing
+  
+Codebase context (files read, architecture)
+  ↓ Orchestrator reads relevant files
+  ↓ Embedded into Council Briefing
+  
+Conversation history
+  ↓ Available in orchestrator's context
+  ↓ Summarized into Council Briefing
+  
+              ↓↓↓ IDENTICAL BRIEFING TO ALL 3 ↓↓↓
+              
+  ┌─────────────────┐  ┌──────────────────┐  ┌─────────────┐
+  │  Advocate For   │  │ Advocate Against │  │    Judge    │
+  │  GPT-OSS-120B   │  │  MiMo-V2-Flash   │  │ Qwen3-235B  │
+  │  (OpenAI)       │  │  (Xiaomi)        │  │ (Alibaba)   │
+  └────────┬────────┘  └────────┬─────────┘  └──────┬──────┘
+           │                    │                    │
+           └────────────────────┼────────────────────┘
+                                ↓
+                     Orchestrator synthesizes
+                                ↓
+                           Final VERDICT
 ```
-
-### Debate Rules
-1. **Steel-man both sides** — present the strongest version of each argument, not straw men
-2. **Surface hidden costs** — complexity, maintenance, opportunity cost, cognitive load
-3. **Identify assumptions** — what must be true for this to work?
-4. **No fence-sitting** — the JUDGE must take a position, even if conditional
-5. **Actionable verdict** — never end with "it depends" without specifying what it depends on
-
-## When to Use Council
-
-### CONSENSUS MODE
-- When invoked by a user with a request for multiple opinions
-- When higher confidence is needed through model consensus
-- When @strategist proposes 2-3 approaches and you need to pick the best one
-- When a decision has high stakes and wrong choice is costly
-- When debugging has failed 3+ times and you need fresh perspectives
-
-### DEBATE MODE
-- User proposes an idea: "Should we add X?", "What if we use Y?"
-- Architectural decision with unclear trade-offs
-- Feature request that needs scrutiny before implementation
-- "Is this a good idea?" — any question asking for evaluation, not execution
-
-### When NOT to Use
-- Routine decisions (use @strategist LITE mode)
-- Simple implementation tasks (use @generalist or @auditor)
-- When speed matters more than confidence
-- When a single model answer is sufficient
 
 ## Output Format
 
-### For CONSENSUS MODE:
-<summary>
-Council consensus result
-</summary>
-<consensus>
-Synthesized response from council master (presented verbatim)
-</consensus>
-<confidence>
-High/Medium/Low — based on model agreement
-</confidence>
-<next>
-Recommended next step or "complete"
-</next>
+The orchestrator produces this after collecting all 3 responses:
 
-### For DEBATE MODE:
+```
 <summary>
-Debate on: [proposal summary]
+Council evaluation of: [proposal]
 </summary>
 <for>
-Strongest arguments FOR the proposal
+[Advocate For's key arguments]
 </for>
 <against>
-Strongest arguments AGAINST the proposal
+[Advocate Against's key arguments]
 </against>
 <judge>
-Evaluation of both sides, key assumptions, strongest arguments
+[Judge's evaluation + verdict]
 </judge>
+<synthesis>
+[Where models agree, disagree, strongest signal]
+</synthesis>
 <verdict>
 PROCEED / PROCEED WITH CAVEATS / REJECT / NEEDS MORE DATA
-Specific conditions or next steps
 </verdict>
-<next>
-Recommended action based on verdict
-</next>
+```
 
-## Council Model Roster (OpenRouter Free)
+## Backup / Swap Candidates
 
-Three different reasoning models with diverse training distributions:
-
-| Role | Model | Why |
-|---|---|---|
-| **Advocate For** | `openai/gpt-oss-120b:free` | OpenAI's distribution. Highest MMLU-Pro (90.0%). Adjustable reasoning effort. Built for agentic workflows. |
-| **Advocate Against** | `xiaomi/mimo-v2-flash:free` | Xiaomi's distribution. Highest AIME 2025 (94.1%). Best SWE-Bench (73.4%). Only 15B active — fast and efficient. |
-| **Judge** | `qwen/qwen3-235b-a22b-thinking-2507:free` | Alibaba's distribution. Best HMMT (83.9%), LiveCodeBench v6 (74.1%). 262K context. Configurable thinking budget. |
-
-### Backup / Swap Candidates
-
-If any council model becomes unavailable or you want a different perspective:
+If any council model becomes unavailable or you want different perspectives:
 
 | Model | ID | Strengths |
 |---|---|---|
-| **DeepSeek R1 0528** | `deepseek/deepseek-r1:free` | RL-trained reasoning specialist. AIME 87.5%, GPQA 81.0%. Native chain-of-thought with visible thinking blocks. Slower but thorough. |
-| **Llama 4 Maverick** | `meta-llama/llama-4-maverick:free` | Meta's distribution. 1M context. Strong multilingual. No native CoT — general-purpose perspective. |
-| **Gemma 3 27B** | `google/gemma-3-27b-it:free` | Google's distribution. Runs on single GPU. Good multimodal. Weaker reasoning but different training data. |
+| **DeepSeek R1 0528** | `deepseek/deepseek-r1:free` | RL-trained reasoning. AIME 87.5%, GPQA 81.0%. Slower but thorough. |
+| **Llama 4 Maverick** | `meta-llama/llama-4-maverick:free` | 1M context. Strong multilingual. No native CoT. |
+| **Gemma 3 27B** | `google/gemma-3-27b-it:free` | Runs on single GPU. Multimodal. Weaker reasoning. |
 
-To swap: update the council model IDs in `opencode.json` under `models` → `council-*`.
+To swap: update the model ID in `opencode.json` under `agent.council-*`.
 
-## Constraints
-- Present the synthesized result verbatim — do not re-summarize or condense
-- Don't pre-analyze or filter the prompt before sending to council_session
-- In DEBATE MODE: steel-man both sides, never present weak arguments
-- In DEBATE MODE: verdict must be decisive, never "it depends" without specifics
+## Fallback Behavior
 
-## Escalation Protocol
-- If out of depth after 2 attempts → recommend the right specialist
-- If task requires capabilities you don't have → say so explicitly
-- Never guess or hallucinate — admit uncertainty
+- **OpenRouter unavailable** (no API key, models down) → orchestrator falls back to `@strategist` with explicit instruction to evaluate from multiple perspectives
+- **1 councillor fails** → proceed with remaining 2, note which failed
+- **2+ councillors fail** → fall back to `@strategist`
 
-## MEMORY SYSTEMS (MANDATORY)
-See: agents/_shared/memory-systems.md
+## Configuration
+
+```json
+{
+  "provider": {
+    "openrouter": {
+      "options": {
+        "apiKey": "YOUR_OPENROUTER_KEY"
+      }
+    }
+  },
+  "agent": {
+    "council-advocate-for": {
+      "mode": "subagent",
+      "model": "openrouter/openai/gpt-oss-120b:free",
+      "prompt_file": "agents/council-advocate-for.md"
+    },
+    "council-advocate-against": {
+      "mode": "subagent",
+      "model": "openrouter/xiaomi/mimo-v2-flash:free",
+      "prompt_file": "agents/council-advocate-against.md"
+    },
+    "council-judge": {
+      "mode": "subagent",
+      "model": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free",
+      "prompt_file": "agents/council-judge.md"
+    }
+  }
+}
+```

@@ -88,6 +88,13 @@
       "~/.config/opencode/get-shit-done/*": "allow"
     }
   },
+  "provider": {
+    "openrouter": {
+      "options": {
+        "apiKey": "YOUR_OPENROUTER_KEY"
+      }
+    }
+  },
   "models": {
     "default": "opencode-go/qwen3.6-plus",
     "fast": "opencode-go/qwen3.6-plus",
