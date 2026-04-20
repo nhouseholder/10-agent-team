@@ -71,6 +71,18 @@ WHAT IT IS → HOW IT WORKS → WHEN TO USE / NOT USE → ALTERNATIVES → RECOM
 ### Phase 6: GET APPROVAL, THEN BUILD
 **NEVER implement before presenting research.** Wait for user to confirm approach.
 
+### Deep Research Loop (for complex topics)
+When a topic requires more than a single pass, use iterative deepening:
+
+1. **Generate queries** (breadth: 3-5 parallel searches covering different angles)
+2. **Process results** — for each source, extract:
+   - **Learnings**: What was discovered (facts, patterns, code examples)
+   - **Directions**: What gaps remain, what to explore next
+3. **Recurse** — if depth remains and directions exist, repeat with new queries informed by prior learnings
+4. **Synthesize** — compile all learnings into a single report with sources
+
+**Default depth**: 1 pass for routine research, 2-3 passes for complex topics. Never exceed 3 passes.
+
 ### Rules
 1. Research before code — summary BEFORE implementation
 2. Search-first for tools — check existing solutions before building
