@@ -1,8 +1,8 @@
-# 10-Agent Orchestration System
+# 9-Agent Orchestration System
 
 A multi-agent coding orchestration system for OpenCode. An **orchestrator** routes every request to the right specialist — or chains them together for complex workflows.
 
-## The 10 Agents
+## The 9 Agents
 
 | Agent | Role | Example Trigger |
 |---|---|---|
@@ -13,8 +13,7 @@ A multi-agent coding orchestration system for OpenCode. An **orchestrator** rout
 | **designer** | UI/UX implementation | "Build a dashboard", "Improve this component" |
 | **auditor** | Debugging, audit, code review | "Fix this bug", "Review this code", "Write tests" |
 | **council** | Multi-LLM consensus & debate | "What's the best approach?", "Should we...?" |
-| **shipper** | Deploy, version bump, git sync | "Deploy this", "Ship it", "Bump version" |
-| **generalist** | Medium tasks, docs, compaction | "Update these configs", "Write docs", "Refactor" |
+| **generalist** | Medium tasks, docs, compaction, deploy | "Update these configs", "Write docs", "Deploy this" |
 | **refiner** | Continuous improvement | "Improve this", "Refine this", session-end indexing |
 
 ## How It Works
@@ -75,8 +74,7 @@ agents/
 ├── designer.md          # UI/UX with intentional minimalism
 ├── auditor.md           # Debugging, audit, code review (READ/FIX modes)
 ├── council.md           # Multi-LLM consensus + DEBATE MODE
-├── shipper.md           # Deploy pipeline with pre-flight gates
-├── generalist.md        # Medium tasks, compaction, summarization
+├── generalist.md        # Medium tasks, compaction, summarization, deploy, handoff
 ├── refiner.md           # Continuous improvement (INDEX/REFINE modes)
 └── _shared/
     └── memory-systems.md  # Shared memory reference for all agents
@@ -87,7 +85,7 @@ agents/
 The system detects sequential language and chains agents automatically:
 
 ```
-"Audit this code, then brainstorm improvements, then make a plan"
+"Audit this code, then explore improvements, then make a plan"
 → @auditor (audit) → @explorer (explore) → @strategist (plan)
 ```
 
@@ -110,7 +108,7 @@ Three persistent memory systems survive across sessions:
 
 ## Version
 
-1.2.0 — Consolidated 12→10 agents, added prompt enhancement, memory retrieval, council DEBATE MODE
+1.3.0 — Merged shipper→generalist, structural anti-loop guards, mempalace read-only, 10→9 agents
 
 ## License
 

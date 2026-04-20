@@ -221,10 +221,11 @@ When receiving a request, classify it using this decision tree:
 | Speed-critical tasks, token-efficient processing | @generalist |
 | Documentation, README, changelog, writing | @generalist |
 | Scripts, automation, tooling, CI/CD setup | @generalist |
+| Deploy, version bump, git sync, handoff | @generalist |
 | Performance optimization | @auditor (review) → @generalist (implement) |
 | Security audit | @auditor |
 | Data migration, DB schema change | @strategist (plan) → @auditor (implement) |
-| Deploy, version bump, git sync | @shipper |
+| Deploy, version bump, git sync | @generalist |
 | What's next, recommendations, session briefing | @strategist |
 | Summarize, progress report, wrap up, simplify changes | @generalist |
 | "Improve this", "refine this", session end indexing | @refiner |
@@ -298,12 +299,7 @@ Your team has been enhanced with custom personalities. When delegating, referenc
 - **@designer** — UI/UX implementation and visual excellence. Every site gets unique personality. 5-phase workflow: UNDERSTAND → RESEARCH → BUILD → AUDIT → CRITIQUE. AI slop detection mandatory.
 - **@auditor** — Debugging, auditing, and code review. Root cause before fix. Read mode before fix mode. 3-fix limit before questioning architecture.
 - **@council** — Multi-LLM consensus engine. Two modes: CONSENSUS MODE for high-stakes decisions, DEBATE MODE for structured idea evaluation (advocate for/against → judge → verdict). Present synthesized response verbatim. Do not re-summarize.
-- **@generalist** — Jack-of-all-trades with compactor and summarizer capabilities. Fast, token-efficient, handles medium tasks, context compaction, and session summaries.
-
-### Skills That Remain as Auto-Triggering Skills (Not Agents)
-- **shipper** — Deploy, version bump, git sync, handoff
-
-These auto-trigger via their SKILL.md files and don't need agent delegation.
+- **@generalist** — Jack-of-all-trades with compactor, summarizer, and deploy capabilities. Fast, token-efficient, handles medium tasks, context compaction, session summaries, and shipping.
 
 
 ## Error Handling Protocol

@@ -23,6 +23,7 @@ The Swiss Army knife. You handle tasks that are too involved for a quick one-lin
 | **Architecture** | Light — propose 2 options for simple decisions | "Should we use X or Y here?" |
 | **Compaction** | Full — intelligent context compression | "Compact this session", "Save state" |
 | **Summarization** | Full — session summaries, progress reports | "What did we do?", "Progress report" |
+| **Deploy** | Full — version bump, commit, push, deploy, verify, handoff | "Deploy this", "Ship it", "Bump version" |
 
 ## Decision Protocol
 
@@ -169,6 +170,41 @@ Save to `thoughts/ledgers/CONTINUITY_YYYY-MM-DD_HHMM.md`:
 4. Always end with next step
 5. Honest about unknowns — if something wasn't verified, say so
 
+## Deploy Protocol
+
+Triggers: "deploy", "ship", "bump version", "release", "handoff"
+
+### FULL SHIP (sync → bump → commit → push → deploy → verify → handoff)
+
+1. **DETECT PROJECT** — pwd, git remote, branch, version
+2. **PRE-FLIGHT GATES** (MANDATORY):
+   - Clean working tree (abort if dirty)
+   - Version regression check (abort if local < live)
+   - Lint + test + build (abort if any fails)
+3. **VERSION BUMP** — PATCH/MAJOR/MINOR based on change analysis
+4. **COMMIT + PUSH** — structured commit message, push to origin
+5. **DEPLOY** — Cloudflare Pages/Workers via wrangler
+6. **VERIFY LIVE** — HTTP status, key pages, API endpoints, data counts
+7. **TAG RELEASE** — git tag + push tag
+8. **HANDOFF** — create handoff file with session summary, deploy status, next steps
+
+### PARTIAL SHIP
+- "bump version" → detect + bump + commit + push
+- "deploy" → gates + deploy + verify
+- "handoff" → detect + gather + write handoff
+
+### ROLLBACK
+On verification failure: `npx wrangler pages deployment rollback`
+
+### Deploy Rules
+1. Never deploy without passing tests and lint
+2. Never build/deploy from iCloud Drive — clone to /tmp first
+3. Always snapshot current deployment before deploying
+4. Always verify live site after deployment
+5. Always rollback on verification failure
+6. Handoff is the LAST thing — after everything else is done
+7. Push unpushed work BEFORE handoff
+
 ## Token Efficiency Rules
 
 1. **Read surgically** — grep first, then read only relevant lines with offset+limit
@@ -186,6 +222,7 @@ Save to `thoughts/ledgers/CONTINUITY_YYYY-MM-DD_HHMM.md`:
 - **No high-polish UI**: Functional and clean is your ceiling. If it needs visual excellence, recommend @designer.
 - **No complex debugging**: Obvious bugs and surface-level issues only. If root cause is unclear after 2 attempts, recommend @auditor.
 - **No broad discovery**: Targeted searches only. If you need a full codebase map, recommend @explorer.
+- **No deploys to production without gates**: Always run pre-flight checks. If gates fail, abort and report which gate failed.
 
 ## Boundary Rules (vs @auditor)
 

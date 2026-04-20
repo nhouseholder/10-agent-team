@@ -70,13 +70,9 @@
     },
     "council": {
       "mode": "all",
-      "model": "anthropic/claude-sonnet-4-6",
-      "prompt_file": "agents/council.md"
-    },
-    "shipper": {
-      "mode": "all",
-      "model": "opencode-go/qwen3.6-plus",
-      "prompt_file": "agents/shipper.md"
+      "model": "openrouter/auto",
+      "prompt_file": "agents/council.md",
+      "note": "Council uses OpenRouter for true multi-LLM consensus with 3 different reasoning models."
     },
     "generalist": {
       "mode": "all",
@@ -97,10 +93,20 @@
       "~/.config/opencode/get-shit-done/*": "allow"
     }
   },
+  "provider": {
+    "openrouter": {
+      "options": {
+        "apiKey": "YOUR_OPENROUTER_KEY"
+      }
+    }
+  },
   "models": {
     "default": "opencode-go/qwen3.6-plus",
     "fast": "opencode-go/qwen3.6-plus",
     "smart": "opencode-go/qwen3.6-plus",
-    "creative": "opencode-go/qwen3.6-plus"
+    "creative": "opencode-go/qwen3.6-plus",
+    "council-advocate-for": "openrouter/openai/gpt-oss-120b:free",
+    "council-advocate-against": "openrouter/xiaomi/mimo-v2-flash:free",
+    "council-judge": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free"
   }
 }
