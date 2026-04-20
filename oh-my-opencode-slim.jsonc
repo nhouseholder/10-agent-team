@@ -1,0 +1,35 @@
+{
+  // Active preset
+  "preset": "default",
+
+  // Council configuration
+  "council": {
+    "master": {
+      "model": "opencode-go/qwen3.6-plus"
+    },
+    "presets": {
+      "default": {
+        "councillor_1": {
+          "model": "opencode-go/qwen3.6-plus"
+        },
+        "councillor_2": {
+          "model": "opencode-go/qwen3.6-plus"
+        },
+        "councillor_3": {
+          "model": "opencode-go/qwen3.6-plus"
+        }
+      }
+    }
+  },
+
+  // Disable observer by default (only enable if you need vision analysis)
+  "disabled_agents": ["observer"],
+
+  // Todo continuation settings
+  "todoContinuation": {
+    "maxContinuations": 5,
+    "cooldownMs": 3000,
+    "autoEnable": false,
+    "autoEnableThreshold": 4
+  }
+}
