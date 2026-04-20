@@ -39,18 +39,37 @@ Specialist executes → verifies → reports back
 
 ## Quick Start
 
-1. Copy `opencode.json` to your OpenCode config directory
-2. Configure MCP servers (engram, mempalace, brain-router) for persistent memory
-3. Start a session — the orchestrator handles routing automatically
+1. Clone this repo
+2. Copy `opencode.json` to `~/.config/opencode/opencode.json` (or merge into your existing config)
+3. **Replace `YOUR_OPENROUTER_KEY`** in the `provider.openrouter.options.apiKey` field with your own free OpenRouter key
+   - Get one at https://openrouter.ai/keys (free tier, no credit card required)
+   - The council agents (GPT-OSS-120B, MiMo-V2-Flash, Qwen3-Thinking) won't work without this
+4. Optionally configure MCP servers (engram, mempalace, brain-router) for persistent memory
+5. Start a session — the orchestrator handles routing automatically
 
-### Enable True Council Consensus (Optional)
+> **Without an OpenRouter key**: Everything works except council consensus. The orchestrator falls back to @strategist for multi-perspective evaluation when council is requested.
 
-For multi-model consensus with 3 different reasoning models (free, no credit card):
+### API Key Setup
 
-1. Get a free OpenRouter API key: https://openrouter.ai/keys
-2. Copy `examples/openrouter-council.json` instead of `opencode.json`
-3. Replace `YOUR_OPENROUTER_KEY` with your key
-4. Council now uses GPT-OSS-120B + MiMo-V2-Flash + Qwen3-235B-Thinking
+The repo `opencode.json` uses a placeholder. You need your own key:
+
+```jsonc
+// In your ~/.config/opencode/opencode.json:
+{
+  "provider": {
+    "openrouter": {
+      "options": {
+        "apiKey": "sk-or-v1-YOUR_KEY_HERE"  // ← replace with your key
+      }
+    }
+  }
+}
+```
+
+1. Go to https://openrouter.ai/keys and create a free account
+2. Generate an API key
+3. Paste it into `provider.openrouter.options.apiKey` in your config
+4. Council models are all free tier — no credits consumed
 
 ## Features
 
