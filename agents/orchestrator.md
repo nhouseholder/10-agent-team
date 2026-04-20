@@ -183,12 +183,12 @@ When a request requires multiple agents sequentially (e.g., "audit then brainsto
 2. **Build the chain**: Identify the sequence of agents needed and what each one produces
 3. **Execute sequentially**: Dispatch agent 1 → capture output → feed to agent 2 → capture output → continue until done
 4. **Pass context forward**: Each agent receives the previous agent's output as context
-5. **Stop only for user input**: If an agent needs a decision (e.g., @architect spec interview), pause and ask. Otherwise, continue automatically
+5. **Stop only for user input**: If an agent needs a decision (e.g., @strategist spec interview), pause and ask. Otherwise, continue automatically
 6. **Report final result**: Summarize the complete chain output at the end
 
 **Chain Example**: "Audit this code, then brainstorm improvements, then make a plan"
 - Step 1: @auditor reads code, identifies issues → output: list of problems
-- Step 2: @strategist receives problems, proposes approaches → output: 2-3 approaches
+- Step 2: @brainstormer explores patterns → output: improvement opportunities
 - Step 3: @strategist writes spec + plan → output: SPEC.md + PLAN.md
 - Final: Report complete chain result
 
