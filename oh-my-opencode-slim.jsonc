@@ -2,23 +2,25 @@
   // Active preset
   "preset": "default",
 
-  // Council configuration
+  // Top-level presets (agent model overrides per preset)
+  "presets": {
+    "default": {
+      "councillor_1": {
+        "model": "opencode-go/qwen3.6-plus"
+      },
+      "councillor_2": {
+        "model": "opencode-go/qwen3.6-plus"
+      },
+      "councillor_3": {
+        "model": "opencode-go/qwen3.6-plus"
+      }
+    }
+  },
+
+  // Council configuration (master model only)
   "council": {
     "master": {
       "model": "opencode-go/qwen3.6-plus"
-    },
-    "presets": {
-      "default": {
-        "councillor_1": {
-          "model": "opencode-go/qwen3.6-plus"
-        },
-        "councillor_2": {
-          "model": "opencode-go/qwen3.6-plus"
-        },
-        "councillor_3": {
-          "model": "opencode-go/qwen3.6-plus"
-        }
-      }
     }
   },
 
