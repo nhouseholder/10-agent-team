@@ -111,7 +111,7 @@ When receiving a request, classify it using this decision tree:
 10. **Does it need UI/UX polish?** → @designer
 11. **Does it need debugging/audit/review?** → @auditor
 12. **Does it need multi-model consensus?** → @council
-13. **Is it trivial (<20 lines, one file)?** → Do it yourself
+13. **Is it a cosmetic edit or trivial lookup?** → Do it yourself
 
 14. **Is it writing tests for existing code?** → @auditor (test writing is QA)
 15. **Is it refactoring an entire module?** → @strategist (plan) → @generalist (implement)
@@ -148,15 +148,17 @@ When receiving a request, classify it using this decision tree:
 
 ## When NOT to Delegate
 
-- Single small changes (<20 lines, one file)
-- Routine decisions you're confident about
-- Tight integration with your current work
-- Sequential dependencies that require your context
+- **Cosmetic edits only** — changing a single word, fixing a typo
+- **Trivial lookups** — `ls`, `git status`, checking if a file exists
+- **Direct answer to a factual question** — no code changes needed
+- **User explicitly says "do it yourself"**
+
+**Default: delegate.** If a task could reasonably go to a specialist, send it there. The cost of unnecessary delegation is far lower than the cost of the orchestrator doing specialist work poorly.
 
 ## Delegation Rules
 
 1. **Think before acting** — evaluate quality, speed, cost, reliability
-2. **Delegate when specialists add value** — don't delegate if overhead ≥ doing it yourself
+2. **Err on the side of delegation** — if a task could reasonably go to a specialist, send it there. Unnecessary delegation costs far less than the orchestrator doing specialist work poorly
 3. **Parallelize independent tasks** — multiple searches, research + exploration simultaneously
 4. **Reference paths/lines** — don't paste file contents, let specialists read what they need
 5. **Brief on delegation goal** — tell the user what you're delegating and why
