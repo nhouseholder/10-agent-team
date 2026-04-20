@@ -1,8 +1,8 @@
-# 9-Agent Orchestration System
+# 8-Agent Orchestration System
 
 A multi-agent coding orchestration system for OpenCode. An **orchestrator** routes every request to the right specialist — or chains them together for complex workflows.
 
-## The 9 Agents
+## The 8 Agents
 
 | Agent | Role | Example Trigger |
 |---|---|---|
@@ -13,8 +13,7 @@ A multi-agent coding orchestration system for OpenCode. An **orchestrator** rout
 | **designer** | UI/UX implementation | "Build a dashboard", "Improve this component" |
 | **auditor** | Debugging, audit, code review | "Fix this bug", "Review this code", "Write tests" |
 | **council** | Multi-LLM consensus & debate | "What's the best approach?", "Should we...?" |
-| **generalist** | Medium tasks, docs, compaction, deploy | "Update these configs", "Write docs", "Deploy this" |
-| **refiner** | Continuous improvement | "Improve this", "Refine this", session-end indexing |
+| **generalist** | Plan executor, medium tasks | "Execute this plan", "Update these configs", "Refactor" |
 
 ## How It Works
 
@@ -93,8 +92,7 @@ agents/
 ├── designer.md          # UI/UX with intentional minimalism
 ├── auditor.md           # Debugging, audit, code review (READ/FIX modes)
 ├── council.md           # Multi-LLM consensus + DEBATE MODE
-├── generalist.md        # Medium tasks, compaction, summarization, deploy, handoff
-├── refiner.md           # Continuous improvement (INDEX/REFINE modes)
+├── generalist.md        # Plan executor, medium tasks, progress tracking
 └── _shared/
     └── memory-systems.md  # Shared memory reference for all agents
 ```
@@ -127,7 +125,7 @@ Three persistent memory systems survive across sessions:
 
 ## Version
 
-1.3.0 — Merged shipper→generalist, structural anti-loop guards, mempalace read-only, 10→9 agents
+1.5.0 — Retooled generalist as plan executor (backup/verify/revert), compaction/deploy moved to skills
 
 ## License
 

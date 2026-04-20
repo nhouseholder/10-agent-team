@@ -1,67 +1,94 @@
-# Handoff — Agent System Consolidation (12 → 10 Agents)
+# Handoff — Agent System Consolidation (12 → 8 Agents)
 
-**Date:** 2026-04-19
-**Version:** 1.2.0
-**Status:** Validation passed (10/10 agents), ready for review
+**Date:** 2026-04-20
+**Version:** 1.5.0
+**Status:** Production-ready, all changes committed and pushed
 
 ## What Was Done
 
-### Merged 3 Agent Pairs
+### Merged 3 Agent Pairs (v1.0)
 1. **architect + strategist → @strategist** — Unified advisory agent with 8 modes: SKIP, LITE, FULL (spec→plan), SPRINT, ASSESSMENT, BRIEFING, PREDICTIVE, OPPORTUNISTIC. Deleted `agents/architect.md`.
 2. **debrief → @generalist** — Added Summarization Protocol (SESSION SUMMARY, PROGRESS TRACKER, CODE SIMPLIFICATION) to generalist's capability spectrum. Deleted `agents/debrief.md`.
 3. **curator + refiner → @refiner** — Single agent with INDEX MODE (memory scanning, backlog maintenance) and REFINE MODE (conservative improvements with tiered action protocol). Deleted `agents/curator.md`.
 
-### Files Updated
-| File | Change |
-|---|---|
-| `opencode.json` | 10 agents, removed duplicate strategist + debrief entries |
-| `agents/orchestrator.md` | Team list, decision tree, delegation table, fallback chain updated |
-| `agents/strategist.md` | Merged architect+strategist (8 modes, spec/plan workflow) |
-| `agents/generalist.md` | Added Summarization Protocol |
-| `agents/refiner.md` | Merged curator+refiner (INDEX/REFINE modes) |
-| `docs/AGENT-REFERENCE.md` | Rewrote @strategist section, removed @generalist/@strategist, updated all cross-refs |
-| `CHANGELOG.md` | Added v1.2.0 entry with merge details |
-| `examples/standard.json` | 10-agent roster, v1.2.0 |
-| `examples/with-memory.json` | 10-agent roster, v1.2.0 |
-| `examples/enterprise.json` | 10-agent roster, v1.2.0 |
+### Brainstormer → Explorer Rename (v1.1)
+- Renamed `brainstormer` → `explorer` for clarity
+- Deleted `agents/brainstormer.md`
 
-### Validation Fixes (35 → 0 errors)
-Fixed all 10 agent files to pass `scripts/validate-agents.js`:
-- Added `## Role`, `## Constraints`, `## Output Format`, `## Escalation Protocol` section headers
-- Added `description` to frontmatter where missing
-- Replaced inline ~200-line memory blocks with `agents/_shared/memory-systems.md` reference
-- Updated all `@strategist` references to `@strategist`
+### Shipper Merge + Anti-Loop Guards (v1.3)
+- Merged shipper into generalist (not registered in opencode.json → broken routing)
+- Replaced advisory-only anti-loop guards with structural circuit breakers (table-based processing flow)
+- Codified mempalace as READ-ONLY — engram + brain-router for all writes
 
-## Current 10-Agent Roster
-| Agent | Role |
-|---|---|
-| **orchestrator** | Primary router, 21-step decision tree, chain protocol |
-| **brainstormer** | Codebase exploration, parallel search protocol |
-| **strategist** | Architecture, planning, spec-writing, "what's next" (8 modes) |
-| **researcher** | External research, source hierarchy (Tier 1-3) |
-| **designer** | UI/UX, intentional minimalism, 5-phase workflow |
-| **auditor** | Dual-mode READ/FIX, verification gates |
-| **council** | Multi-LLM consensus via council_session |
-| **shipper** | Deploy pipeline, pre-flight gates, rollback |
-| **generalist** | Medium tasks, compaction, summarization |
-| **refiner** | Continuous improvement, INDEX/REFINE modes |
+### Refiner Removal (v1.4)
+- Removed refiner agent (9→8) — capabilities covered by opportunistic-improvement skill + compactor + memory systems
+- Deleted `agents/refiner.md`
 
-## Validation Result
-```
-Agents: 10/10 passed
-Errors: 0
-Warnings: 2 (benign — READ-ONLY vs implementation language in advisory agents)
-Decision Tree Coverage: 11/11 task types
-```
+### Generalist Retool (v1.5)
+- Rewrote generalist from Swiss Army knife (305 lines, 11 capabilities) to focused plan executor (~180 lines)
+- PLAN MODE: backup→execute→verify→checkpoint per step, revert on failure, progress tracking
+- AUTONOMOUS MODE: context→explore→implement→verify
+- Moved compaction/deploy to standalone skills — orchestrator invokes directly
+
+### Two-Phase Compaction Protocol
+- **Phase 1 (Memory Extract):** Learnings → `engram_mem_save`, Decisions → `brain-router_brain_save`, Preferences → `brain-router_brain_save`
+- **Phase 2 (Summary):** Write structured 600-1000 word summary with 5 headers and word budget per section
+- Ensures durable knowledge persists even when compaction summary is lossy
+
+### Council: True Multi-LLM Consensus
+- 3-agent fan-out: GPT-OSS-120B (advocate-for), MiMo-V2-Flash (advocate-against), Qwen3-235B-Thinking (judge)
+- All free via OpenRouter, no credit card needed
+- New agent files: `council-advocate-for.md`, `council-advocate-against.md`, `council-judge.md`
+
+### Stale Reference Purge
+- 13 files cleaned across docs/, examples/, and root — 87 insertions, 152 deletions
+- Zero stale references to brainstormer, shipper, architect, librarian, oracle, refiner remain
+
+## Current 8-Agent Roster
+
+| Agent | Role | Mode |
+|---|---|---|
+| **orchestrator** | Router & coordinator | primary |
+| **explorer** | Codebase exploration, parallel search | all |
+| **strategist** | Architecture, planning, "what's next" | all |
+| **researcher** | External docs & research | all |
+| **designer** | UI/UX implementation | all |
+| **auditor** | Debugging, audit, code review | all |
+| **council** | Multi-LLM consensus (3-model fan-out) | subagent |
+| **generalist** | Plan executor, medium tasks | all |
+
+
+## Key Decisions (Persisted in Memory)
+
+1. **Structural over advisory anti-loop guards** — table-based processing with required outputs
+2. **Mempalace read-only** — engram + brain-router for all writes
+3. **Shipper merged into generalist** — was causing broken routing (not in opencode.json)
+4. **Two-phase compaction** — extract to MCP memory first, then summarize
+5. **Parenthetical aliases cause ProviderModelNotFoundError** — only bare @agent names
+6. **opencode.json is source of truth** — always verify after rebase
+7. **Refiner removed** — capabilities covered by opportunistic-improvement skill + compactor + memory systems
+8. **Generalist retooled as plan executor** — moved compaction/deploy to skills, orchestrator invokes directly
+
+## Repos
+
+| Repo | Path | Purpose |
+|---|---|---|
+| `nhouseholder/10-agent-team` | `~/.config/opencode/` | Primary config |
+| `nhouseholder/nicks-claude-code-superpowers` | `~/ProjectsHQ/superpowers/` | Mirror (skills only) |
+
+## Known Gotchas
+
+- **Commander** = Desktop Commander MCP server (not an agent)
+- **Octto** = Claude Code CLI built-in session tools (not an agent)
+- Rebase conflicts can silently overwrite opencode.json — verify agent count after every pull
+- Council models are free tier — rate limits apply
+
+## Commits This Session
 
 ## Next Steps
-1. **Add GitHub remote** — `git remote add origin <repo-url>` then `git push -u origin main`
-2. **Delete removed agent files** — `agents/architect.md`, `agents/debrief.md`, `agents/curator.md` (if still present)
-3. **Update README.md** — Architecture diagram still shows 11 agents including @generalist and @strategist
-4. **Consider**: The `docs/README.md` still references "8-Agent" and "11-agent" in various places — needs consistency pass to "10-Agent"
+1. Verify all 8 agents pass validation after rebase
+2. Sync latest skills to superpowers repo
+3. Update docs/AGENT-REFERENCE.md with generalist v1.5 changes
 
 ## Known Gaps
-- `docs/README.md` architecture diagram and agent table still list @strategist and @generalist
-- `docs/README.md` header says "8-Agent" — should be "10-Agent"
-- `docs/README.md` chain example still references @strategist
-- Removed agent prompt files (`architect.md`, `debrief.md`, `curator.md`) may still exist on disk
+- `docs/AGENT-REFERENCE.md` may still reference old generalist capabilities (305-line Swiss Army knife)

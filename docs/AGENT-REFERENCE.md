@@ -377,9 +377,7 @@ Swiss Army knife for medium-complexity tasks. Can explore, research, design, deb
 
 ## @generalist (Deploy)
 
-> **Note:** Shipper was merged into @generalist in v1.3.0. Deploy tasks are now routed to @generalist.
-
-See the @generalist section above for full deploy protocol.
+> **Note:** Generalist was retooled in v1.5.0 from a Swiss Army knife into a focused plan executor. Compaction moved to compactor skill (orchestrator invokes directly). Deploy moved to shipper skill. Summarization moved to debrief skill.
 
 ---
 

@@ -1,4 +1,4 @@
-# 9-Agent Orchestration System — Documentation
+# 8-Agent Orchestration System — Documentation
 
 Detailed documentation for the agent orchestration system.
 
@@ -12,7 +12,7 @@ Detailed documentation for the agent orchestration system.
 | [USAGE.md](USAGE.md) | How to use the system, configuration, best practices |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Common issues and solutions |
 
-## Current Agent Roster (9 total)
+## Current Agent Roster (8 total)
 
 | Agent | Role |
 |---|---|
@@ -23,9 +23,8 @@ Detailed documentation for the agent orchestration system.
 | **designer** | UI/UX with intentional minimalism philosophy |
 | **auditor** | Dual-mode (READ/FIX) with verification gates |
 | **council** | Multi-LLM consensus + DEBATE MODE for structured idea evaluation |
-| **generalist** | Medium tasks, compaction, summarization, deploy, handoff |
-| **refiner** | Continuous improvement with INDEX MODE and REFINE MODE |
+| **generalist** | Plan executor, medium tasks, file safety (backup/verify/revert) |
 
 ## Version
 
-1.3.0 — Merged shipper→generalist, structural anti-loop guards, mempalace read-only, 10→9 agents
+1.5.0 — Retooled generalist as plan executor, compaction/deploy moved to skills

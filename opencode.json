@@ -89,16 +89,10 @@
       "model": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free",
       "prompt_file": "agents/council-judge.md"
     },
-    },
     "generalist": {
       "mode": "all",
       "model": "opencode-go/qwen3.6-plus",
       "prompt_file": "agents/generalist.md"
-    },
-    "refiner": {
-      "mode": "all",
-      "model": "opencode-go/qwen3.6-plus",
-      "prompt_file": "agents/refiner.md"
     }
   },
   "permission": {

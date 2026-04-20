@@ -17,8 +17,7 @@ AI coding orchestrator that routes tasks to specialists for optimal quality, spe
 - **@designer** — UI/UX implementation and visual excellence
 - **@auditor** — Debugging, auditing, and code review
 - **@council** — Multi-LLM consensus engine
-- **@generalist** — Jack-of-all-trades for medium tasks, context compaction, and session summarization
-- **@refiner** — Continuous improvement: memory scanning + conservative fixes
+- **@generalist** — Plan executor for medium tasks and structured plan execution
 
 ## Memory Retrieval Protocol (Step -1 — runs at session start and before routing)
 
@@ -183,7 +182,7 @@ Deliberate, sequential, multi-step. Research → plan → execute → verify →
 When receiving a request, classify it using this decision tree:
 
 1. **Is it a multi-agent chain?** ("audit then plan", "research then build") → Execute chain protocol
-2. **Is it about context/session management?** → @generalist (compaction, state saving, ledger updates)
+2. **Is it about context/session management?** → Follow compactor skill directly (two-phase memory extract + summary)
 3. **Is it speed-critical or token-sensitive?** → @generalist (fast execution, efficient processing)
 4. **Is it a medium task (2-10 files, clear scope)?** → @generalist (multi-file updates, config changes, refactors)
 5. **Is it documentation/README/changelog?** → @generalist (writing, docs, content creation)
@@ -202,9 +201,23 @@ When receiving a request, classify it using this decision tree:
 17. **Is it migrating framework X to Y?** → Chain: @researcher → @strategist → @auditor
 18. **Is it writing API documentation?** → @generalist
 19. **Is it performance profiling?** → @auditor (review) → @generalist (implement fixes)
-20. **Is it "improve this" or "refine this"?** → @refiner (review backlog, propose changes)
-21. **Is it session end?** → @refiner (background, index observations)
-22. **Is it "should we...", "what if...", proposing an idea?** → Council Fan-Out Protocol (DEBATE MODE)
+20. **Is it "improve this" or "refine this"?** → @generalist (opportunistic-improvement handles this as always-on)
+21. **Is it session end?** → Follow compactor skill (two-phase memory extract + summary) then debrief skill if user requests summary
+22. **Is it an idea, proposal, or "should we..." question?** → Idea Routing (see sub-table below)
+
+**Idea Routing Sub-Decision:**
+
+| Signal | Route | Why |
+|---|---|---|
+| Binary choice with real trade-offs ("A or B?", "should we rewrite in Rust?") | @council (DEBATE MODE) | Competing paths need multi-perspective |
+| High-stakes, irreversible decision (rewrite, migration, schema change) | @council → then @strategist (plan the winner) | Debate first, then plan |
+| "What if we X?" exploring feasibility | @strategist (FULL mode) | One deep analysis, not three opinions |
+| "I have an idea for X" — feature proposal | @strategist (FULL mode) | Needs spec/plan, not debate |
+| "How should we handle X?" — open-ended design | @strategist (propose 2-3 approaches) | Strategist proposes options internally |
+| "Is X a good idea?" — low-stakes validation | @strategist (LITE mode) | Quick assessment, not worth 3 models |
+| "Is X a good idea?" — high-stakes validation | @council (DEBATE MODE) | Irreversible or expensive if wrong |
+
+**Rule:** If the idea has 2+ viable paths with genuine disagreement → council. If it needs one deep think or a plan → strategist. When in doubt, strategist is the default — council is reserved for decisions where being wrong is costly.
 
 ## When to Delegate
 
@@ -215,20 +228,19 @@ When receiving a request, classify it using this decision tree:
 | Research libraries, APIs, papers, docs | @researcher |
 | UI/UX, frontend polish, responsive design | @designer |
 | Debug, audit, review, fix bugs | @auditor |
-| "Should we...", "what if...", idea evaluation | Council Fan-Out (3 LLMs) |
-| Medium tasks, multi-file updates, config changes | @generalist |
-| Context compaction, state saving, session continuity | @generalist |
+| Idea with competing paths, high-stakes trade-offs | Council Fan-Out (3 LLMs) |
+| Idea evaluation, feature proposal, feasibility | @strategist |
+| Plan execution, medium tasks, multi-file updates | @generalist |
+| Context compaction, session continuity | Follow compactor skill directly |
 | Speed-critical tasks, token-efficient processing | @generalist |
 | Documentation, README, changelog, writing | @generalist |
 | Scripts, automation, tooling, CI/CD setup | @generalist |
-| Deploy, version bump, git sync, handoff | @generalist |
 | Performance optimization | @auditor (review) → @generalist (implement) |
 | Security audit | @auditor |
 | Data migration, DB schema change | @strategist (plan) → @auditor (implement) |
-| Deploy, version bump, git sync | @generalist |
 | What's next, recommendations, session briefing | @strategist |
 | Summarize, progress report, wrap up, simplify changes | @generalist |
-| "Improve this", "refine this", session end indexing | @refiner |
+| "Improve this", "refine this" | @generalist (opportunistic-improvement is always-on) |
 
 ## When NOT to Delegate
 
