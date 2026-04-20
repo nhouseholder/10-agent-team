@@ -145,6 +145,28 @@ Specific conditions or next steps
 Recommended action based on verdict
 </next>
 
+## Council Model Roster (OpenRouter Free)
+
+Three different reasoning models with diverse training distributions:
+
+| Role | Model | Why |
+|---|---|---|
+| **Advocate For** | `openai/gpt-oss-120b:free` | OpenAI's distribution. Highest MMLU-Pro (90.0%). Adjustable reasoning effort. Built for agentic workflows. |
+| **Advocate Against** | `xiaomi/mimo-v2-flash:free` | Xiaomi's distribution. Highest AIME 2025 (94.1%). Best SWE-Bench (73.4%). Only 15B active — fast and efficient. |
+| **Judge** | `qwen/qwen3-235b-a22b-thinking-2507:free` | Alibaba's distribution. Best HMMT (83.9%), LiveCodeBench v6 (74.1%). 262K context. Configurable thinking budget. |
+
+### Backup / Swap Candidates
+
+If any council model becomes unavailable or you want a different perspective:
+
+| Model | ID | Strengths |
+|---|---|---|
+| **DeepSeek R1 0528** | `deepseek/deepseek-r1:free` | RL-trained reasoning specialist. AIME 87.5%, GPQA 81.0%. Native chain-of-thought with visible thinking blocks. Slower but thorough. |
+| **Llama 4 Maverick** | `meta-llama/llama-4-maverick:free` | Meta's distribution. 1M context. Strong multilingual. No native CoT — general-purpose perspective. |
+| **Gemma 3 27B** | `google/gemma-3-27b-it:free` | Google's distribution. Runs on single GPU. Good multimodal. Weaker reasoning but different training data. |
+
+To swap: update the council model IDs in `opencode.json` under `models` → `council-*`.
+
 ## Constraints
 - Present the synthesized result verbatim — do not re-summarize or condense
 - Don't pre-analyze or filter the prompt before sending to council_session

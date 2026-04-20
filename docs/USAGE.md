@@ -221,3 +221,34 @@ The orchestrator detects sequential language and chains agents automatically.
 - Recovery: retry once → escalate → pause for user input
 - State saved to ledger before pausing
 - Resumes from last completed step
+
+## Configuring Council for True Multi-LLM Consensus
+
+Council requires 3 **different** models. With the same model, it's self-talk.
+
+### Option A: OpenRouter (Recommended — Free, 3 Different Reasoning Models)
+
+One free API key gives access to 3 reasoning models with native chain-of-thought.
+
+**The 3 Council Models:**
+
+| Role | Model | Why |
+|---|---|---|
+| **Advocate For** | `openai/gpt-oss-120b:free` | OpenAI's distribution. Highest MMLU-Pro (90.0%). Adjustable reasoning effort. |
+| **Advocate Against** | `xiaomi/mimo-v2-flash:free` | Xiaomi's distribution. Highest AIME 2025 (94.1%). Best SWE-Bench (73.4%). |
+| **Judge** | `qwen/qwen3-235b-a22b-thinking-2507:free` | Alibaba's distribution. Best HMMT (83.9%), LiveCodeBench v6 (74.1%). |
+
+**Setup (2 minutes):**
+
+1. Get a free OpenRouter API key: https://openrouter.ai/keys (no credit card)
+2. Copy `examples/openrouter-council.json` to your OpenCode config directory as `opencode.json`
+3. Replace `YOUR_OPENROUTER_KEY` with your actual key
+4. Start a session — council now uses 3 different reasoning models
+
+**Rate limits:** ~200 requests/day per model on the free tier.
+
+**Backup models** (swap in if any primary is unavailable): DeepSeek R1, Llama 4 Maverick, Gemma 3 27B. See `agents/council.md` for full backup roster.
+
+### Option B: Single Provider (Default — Works Out of the Box)
+
+Council runs in DEBATE MODE with a single model — still valuable for structured idea evaluation. Use `examples/standard.json` or `examples/minimal.json`.

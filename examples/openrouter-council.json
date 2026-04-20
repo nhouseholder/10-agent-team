@@ -1,0 +1,98 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/qwen3.6-plus",
+  "plugin": [
+    "oh-my-opencode-slim",
+    "micode"
+  ],
+  "mcp": {
+    "brain-router": {
+      "type": "local",
+      "command": ["brain-router"],
+      "environment": {
+        "BRAIN_PROJECT": "global",
+        "ENGRAM_DB": "{env:HOME}/.engram/engram.db",
+        "MEMPALACE_PALACE": "{env:HOME}/.mempalace/global"
+      },
+      "enabled": true
+    },
+    "engram": {
+      "type": "local",
+      "command": ["engram", "mcp"],
+      "enabled": true
+    },
+    "mempalace": {
+      "type": "local",
+      "command": ["mempalace-mcp"],
+      "environment": {
+        "MEMPALACE_PALACE": "{env:HOME}/.mempalace/global"
+      },
+      "enabled": true
+    }
+  },
+  "agent": {
+    "orchestrator": {
+      "mode": "primary",
+      "model": "opencode-go/qwen3.6-plus",
+      "prompt_file": "agents/orchestrator.md"
+    },
+    "brainstormer": {
+      "mode": "all",
+      "model": "opencode-go/qwen3.6-plus",
+      "prompt_file": "agents/brainstormer.md"
+    },
+    "strategist": {
+      "mode": "all",
+      "model": "opencode-go/qwen3.6-plus",
+      "prompt_file": "agents/strategist.md"
+    },
+    "researcher": {
+      "mode": "all",
+      "model": "opencode-go/qwen3.6-plus",
+      "prompt_file": "agents/researcher.md"
+    },
+    "designer": {
+      "mode": "all",
+      "model": "opencode-go/qwen3.6-plus",
+      "prompt_file": "agents/designer.md"
+    },
+    "auditor": {
+      "mode": "all",
+      "model": "opencode-go/qwen3.6-plus",
+      "prompt_file": "agents/auditor.md"
+    },
+    "council": {
+      "mode": "all",
+      "model": "openrouter/auto",
+      "prompt_file": "agents/council.md",
+      "note": "Council uses OpenRouter for true multi-LLM consensus with 3 different reasoning models. See agents/council.md for roster and backup models."
+    },
+    "generalist": {
+      "mode": "all",
+      "model": "opencode-go/qwen3.6-plus",
+      "prompt_file": "agents/generalist.md"
+    },
+    "refiner": {
+      "mode": "all",
+      "model": "opencode-go/qwen3.6-plus",
+      "prompt_file": "agents/refiner.md"
+    }
+  },
+  "permission": {
+    "read": {
+      "~/.config/opencode/get-shit-done/*": "allow"
+    },
+    "external_directory": {
+      "~/.config/opencode/get-shit-done/*": "allow"
+    }
+  },
+  "models": {
+    "default": "opencode-go/qwen3.6-plus",
+    "fast": "opencode-go/qwen3.6-plus",
+    "smart": "opencode-go/qwen3.6-plus",
+    "creative": "opencode-go/qwen3.6-plus",
+    "council-advocate-for": "openrouter/openai/gpt-oss-120b:free",
+    "council-advocate-against": "openrouter/xiaomi/mimo-v2-flash:free",
+    "council-judge": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free"
+  }
+}

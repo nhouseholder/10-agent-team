@@ -44,6 +44,15 @@ Specialist executes → verifies → reports back
 2. Configure MCP servers (engram, mempalace, brain-router) for persistent memory
 3. Start a session — the orchestrator handles routing automatically
 
+### Enable True Council Consensus (Optional)
+
+For multi-model consensus with 3 different reasoning models (free, no credit card):
+
+1. Get a free OpenRouter API key: https://openrouter.ai/keys
+2. Copy `examples/openrouter-council.json` instead of `opencode.json`
+3. Replace `YOUR_OPENROUTER_KEY` with your key
+4. Council now uses GPT-OSS-120B + MiMo-V2-Flash + Qwen3-235B-Thinking
+
 ## Features
 
 - **22-step decision tree** classifies every request and routes to the right agent
