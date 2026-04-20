@@ -85,7 +85,7 @@
 
 | Repo | Path | Purpose |
 |---|---|---|
-| `nhouseholder/10-agent-team` | `~/.config/opencode/` | Primary config |
+| `nhouseholder/8-agent-team` | `~/.config/opencode/` | Primary config |
 | `nhouseholder/nicks-claude-code-superpowers` | `~/ProjectsHQ/superpowers/` | Mirror (skills only) |
 
 ## Known Gotchas
