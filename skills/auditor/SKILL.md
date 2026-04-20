@@ -103,3 +103,13 @@ For any stats, dashboard, or data display:
 4. **3-fix limit** — if 3 fixes fail, question architecture
 5. **Test before commit** — failing test case first
 6. **QA tier matches work type** — don't over-test configs, don't under-test algos
+
+## Loop Detection (MANDATORY — runs before every diagnostic output)
+
+Before emitting any analysis, diagnosis, or audit finding, answer these 3 questions:
+
+1. **Am I re-analyzing something I already diagnosed?** → If yes: state the existing diagnosis and move to action.
+2. **Is my output materially different from the last turn?** → If no: STOP. One-line summary → fix or escalate.
+3. **Am I using "investigate further" to avoid making a decision?** → If yes: commit to the best hypothesis and test it.
+
+**Hard limit:** If you've emitted the same core finding 2+ times without new evidence, STOP. Write one sentence summarizing what you know, then either propose a fix or escalate. Do not re-analyze.
