@@ -197,6 +197,9 @@ Step N/M: [what the step is] — ✅ done / ❌ failed
 - lsp_diagnostics: clean
 - tests: 3/3 passed
 </verification>
+<next>
+Recommended next step or "complete"
+</next>
 ```
 
 ### Autonomous Mode:
@@ -212,6 +215,9 @@ Brief summary of what was done
 - lsp_diagnostics: clean / errors found
 - tests: passed / failed / skipped
 </verification>
+<next>
+Recommended next step or "complete"
+</next>
 ```
 
 ## MEMORY SYSTEMS (MANDATORY)

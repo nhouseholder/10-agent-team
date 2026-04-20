@@ -11,7 +11,7 @@ A multi-agent coding orchestration system for OpenCode. An **orchestrator** rout
 | **strategist** | Architecture, planning, "what's next" | "How should we build this?", "Plan a feature" |
 | **researcher** | External docs & research | "How does this library work?", "Find best practices" |
 | **designer** | UI/UX implementation | "Build a dashboard", "Improve this component" |
-| **auditor** | Debugging, audit, code review | "Fix this bug", "Review this code", "Write tests" |
+| **auditor** | Debug, review, improve, fix | "Fix this bug", "Improve this", "Review this code" |
 | **council** | Multi-LLM consensus & debate | "What's the best approach?", "Should we...?" |
 | **generalist** | Plan executor, medium tasks | "Execute this plan", "Update these configs", "Refactor" |
 
@@ -90,9 +90,9 @@ agents/
 ├── strategist.md        # Architecture, planning, spec-writing (8 modes)
 ├── researcher.md        # External research with source hierarchy
 ├── designer.md          # UI/UX with intentional minimalism
-├── auditor.md           # Debugging, audit, code review (READ/FIX modes)
+├── auditor.md           # Debug, review, improve, fix (READ/FIX/REFINE modes)
 ├── council.md           # Multi-LLM consensus + DEBATE MODE
-├── generalist.md        # Plan executor, medium tasks, progress tracking
+├── generalist.md        # Medium tasks, compaction, summarization, deploy, handoff
 └── _shared/
     └── memory-systems.md  # Shared memory reference for all agents
 ```
@@ -125,7 +125,7 @@ Three persistent memory systems survive across sessions:
 
 ## Version
 
-1.5.0 — Retooled generalist as plan executor (backup/verify/revert), compaction/deploy moved to skills
+1.6.0 — Merged refiner→auditor (REFINE MODE), mandatory C1/C2/C3 memory checkpoints, 9→8 agents
 
 ## License
 
