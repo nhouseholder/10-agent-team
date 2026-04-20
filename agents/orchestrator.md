@@ -50,7 +50,7 @@ Use memory findings to improve routing:
 
 ### Post-Task Memory Save (after significant work)
 - Save decisions via `engram_mem_save` and `brain-router_brain_save`
-- Save verbatim context via `mempalace_mempalace_add_drawer` when detailed notes matter
+- Mempalace is READ-ONLY — do not write to it during save rhythm. Checkpoint/ledger files on disk handle verbatim storage.
 - Never save trivial changes — only decisions, architecture, bugfixes, patterns, and learnings
 
 ## Prompt Enhancement Protocol (Step 0 — runs before decision tree)

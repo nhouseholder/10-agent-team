@@ -171,7 +171,18 @@ git log --oneline -10
 
 ## Memory Persistence
 
-### Project-Level Memory
+### Save Rhythm (compaction-paired, NOT scattered)
+
+Memory saves are batched with compaction events — not saved after every task.
+
+| Event | Save action |
+|---|---|
+| **Before compaction** | Write checkpoint file to disk + `engram_mem_save` key findings + `brain-router_brain_save` critical facts |
+| **Session end** | `engram_mem_session_summary` (comprehensive) + final `brain-router_brain_save` |
+| **Major decision mid-session** | `engram_mem_save` + `brain-router_brain_save` only — no disk file needed |
+| **NEVER** | Do NOT write to mempalace during save rhythm. It's read-only. Checkpoint/ledger files handle verbatim storage. |
+
+### Project-Level Memory (disk files)
 Each project maintains:
 - `thoughts/ledgers/` — session continuity files
 - `handoffs/` — end-of-session summaries
