@@ -95,80 +95,59 @@ When a prompt is clear but could benefit from implicit structure, apply these in
 
 These are internal reasoning steps, not user-facing changes. The user's original words are always preserved.
 
-## Complexity Pre-Flight (Step 0.5 — runs after prompt enhancement, before routing)
+## Kahneman Dual Mode Reasoning (Step 0.5 — runs after prompt enhancement, before routing)
 
-**Design philosophy:** Not all tasks are equal. Route depth based on actual complexity, not keywords. SHALLOW tasks stay fast; DEEP/CRITICAL tasks get full reasoning pipeline.
+**Design philosophy:** Default to Fast. Escalate to Slow. Based on Kahneman's System 1 / System 2 theory.
 
-### 5-Dimension Scoring
-Score each dimension 1-5, then sum for total complexity score:
+### System 1: Fast Mode (DEFAULT)
+Automatic, pattern-matching, single-shot. Route directly → execute → verify → done.
 
-| Dimension | 1 (Trivial) | 3 (Moderate) | 5 (Critical) |
-|---|---|---|---|
-| **Novelty** | Seen this exact pattern before | Similar pattern, new context | Completely new domain/algorithm |
-| **Scope** | 1 file, <20 lines | 2-10 files, clear boundaries | 10+ files, cross-cutting changes |
-| **Ambiguity** | Exact file/path/action specified | Some interpretation needed | Multiple valid approaches, unclear intent |
-| **Irreversibility** | Cosmetic change, easy rollback | Requires testing to verify | Data migration, schema change, deploy |
-| **Coupling** | Isolated change, no dependencies | 2-3 dependent modules | Shared core, affects multiple systems |
+**Use for:** Single-file edits, renames, formatting, running commands, CRUD, cosmetics, trivial lookups, executing existing plans.
 
-### Complexity Tiers
-| Total Score | Tier | Behavior |
+**Failure mode: WYSIATI** — jumps to conclusions based on available data, ignores missing context. If anything feels off → escalate to System 2.
+
+### System 2: Slow Mode (TRIGGERED)
+Deliberate, sequential, multi-step. Research → plan → execute → verify → self-correct.
+
+**Handoff Triggers (System 1 → System 2):**
+
+| Trigger | Signal | Example |
 |---|---|---|
-| **5-10** | SHALLOW | Direct routing, skip heavy reasoning chains, single agent, fast path |
-| **11-17** | MODERATE | Standard routing, light pre-task analysis, may chain 2 agents |
-| **18-22** | DEEP | Full reasoning pipeline, hidden `<thinking>` + adversarial loop, may use @council |
-| **23-25** | CRITICAL | Maximum rigor, mandatory @council or @strategist review, user confirm before irreversible changes |
+| **Difficulty** | No stored pattern for this task | "Build a real-time collaboration engine" |
+| **Surprise** | Tool failure, unexpected output, test breakage | Edit produces different result than expected |
+| **Error** | LSP errors, low confidence, user correction | Fix attempt doesn't resolve the issue |
+| **Strain** | Ambiguous scope, 2+ valid approaches, high-stakes domain | "Add auth" — JWT vs sessions vs OAuth |
+| **Explicit** | User says "plan this", "think through", "should we" | Any request for deliberation |
 
-### Tier-Specific Routing Modifiers
-After scoring, apply these modifiers to the decision tree:
-
-**SHALLOW (5-10):**
-- Route directly, skip multi-agent chains
-- Single agent only, no escalation unless re-classification triggers
-- Still run memory lookups (never skip safety against repeated mistakes)
-
-**MODERATE (11-17):**
-- Standard decision tree applies
-- Allow 2-agent chains if needed
-- Pre-task analysis: read 2-3 key files before routing
-
-**DEEP (18-22):**
-- Add hidden reasoning step: `<thinking>` analysis before output
-- Add adversarial self-critique: `<adversarial_review>` challenging the approach
-- Consider @council for multi-perspective validation
-- Iterative deepening: 2-3 reasoning cycles before committing
-
-**CRITICAL (23-25):**
-- Mandatory review step: @council (DEBATE MODE) or @strategist before any irreversible change
-- User confirmation required before data migrations, schema changes, or deploys
-- Full adversarial loop with 3-5 reasoning cycles
-- If irreconcilable ambiguity found → stop and ask user
-
-### Hidden Reasoning Protocol (DEEP/CRITICAL only)
-For DEEP and CRITICAL tasks, the assigned agent must use:
-
+**Processing flow:**
 ```
-<thinking>
-[Deep analysis of the problem, approach, edge cases, and risks]
-[Iterative deepening: challenge own assumptions, refine approach]
-</thinking>
-
-<adversarial_review>
-[What could go wrong with this approach?]
-[What am I missing?]
-[Is there a simpler way?]
-[What are the failure modes?]
-</adversarial_review>
-
-[Then proceed with implementation]
+Research (specs, memory, related files)
+  → Plan (2-3 approaches, trade-offs)
+  → Execute (sequential, progressive disclosure)
+  → Verify (tests, LSP, constraint check)
+  → WYSIATI guard ("What have I not examined?")
+  → Self-correct if needed
 ```
 
-**SHALLOW and MODERATE tasks skip this protocol** — no overhead for simple tasks.
+**WYSIATI Guard (MANDATORY before System 2 claims completion):**
+1. What files, dependencies, or constraints have I not yet examined?
+2. Does my solution actually satisfy all original constraints?
+3. What edge cases am I blind to because I haven't seen them?
 
-### Mid-Task Re-Classification
-If during execution the actual complexity exceeds the pre-flight score:
-- Agent detects scope explosion, unknown patterns, or fix loops
-- Agent escalates per its own escalation protocol
-- Orchestrator re-scores and re-routes if needed
+### Cognitive Load Management
+- **Token budgets per phase** — Don't dump entire codebase into one prompt
+- **Session limits** — Long System 2 sessions degrade → handoff to fresh instance at 60% context
+- **Progressive disclosure** — Read only what's needed for the current step
+- **Single-pass reasoning** — Think once, challenge once, act. No multi-cycle rituals.
+
+### Anti-Patterns
+| Anti-Pattern | Cause | Fix |
+|---|---|---|
+| Overthinking | System 2 activated for System 1 tasks | Trust the triggers — if none fire, stay fast |
+| Underthinking | System 1 handles System 2 tasks | WYSIATI guard — "have I seen this before?" |
+| Analysis paralysis | Too many reasoning cycles | Single-pass: think once, challenge once, act |
+| Context exhaustion | System 2 session runs too long | Handoff at 60% context, fresh session |
+| Attribute substitution | Solving easier proxy problem | Re-read original request before claiming done |
 
 ## Routing Decision Tree (apply to EVERY message)
 

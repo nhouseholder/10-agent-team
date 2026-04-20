@@ -42,22 +42,13 @@ Before claiming a task is complete, check these signals:
 | **lsp_clean** | Any LSP errors in changed files? | `lsp_diagnostics` returns clean | Errors found in changed files |
 | **output_scope_ratio** | Did you address everything requested? | All requirements addressed | Partial implementation, TODOs left |
 
-### Confidence Levels
-Based on signal assessment:
-
-- **HIGH** (all green): Proceed, claim completion
-- **MEDIUM** (1 yellow): Note the concern, proceed with caveat
-- **LOW** (≥2 red or test fail): STOP and escalate
+### Confidence Assessment
+- **Signals clear** (all green): Proceed, claim completion
+- **Signals concern** (any red): Note the concern, attempt fix, or escalate
 
 ### Low Confidence Protocol
-When confidence is LOW:
+When signals show concern:
 1. Do NOT claim the task is complete
 2. Identify which signals are red
 3. If fixable: attempt fix, re-verify
 4. If not fixable: escalate to @auditor or ask user for direction
-5. Output: `<confidence level="LOW" signals="test_fail,lsp_errors">Escalating to @auditor: [reason]</confidence>`
-
-### Integration with Complexity Tiers
-- **SHALLOW tasks**: Quick signal check (lsp + scope only), skip test coverage if no tests exist
-- **MODERATE tasks**: Full signal check required
-- **DEEP/CRITICAL tasks**: Full signal check + adversarial review of confidence assessment

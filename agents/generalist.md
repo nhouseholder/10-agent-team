@@ -227,42 +227,32 @@ Single most important next step
 </next>
 ```
 
-## Mid-Task Re-Classification Protocol
+## Mid-Task Handoff Protocol (System 1 → System 2)
 
-**Design philosophy:** Tasks often reveal hidden complexity mid-execution. Detect early, escalate before wasting tokens on the wrong approach.
+**Design philosophy:** Default to fast execution. Escalate to slow reasoning when signals fire. Based on Kahneman's System 2 activation triggers.
 
-### When to Re-Classify
-During execution, if ANY of these triggers fire, STOP and re-classify:
+### When to Escalate
+During execution, if ANY of these signals fire, STOP and escalate:
 
 | Trigger | Signal | Action |
 |---|---|---|
-| **Scope explosion** | Task touches 3x more files than expected | Escalate to @strategist for scoping |
-| **Unknown pattern** | Code uses patterns you don't recognize after 2 lookups | Escalate to @brainstormer for discovery |
-| **Fix loop** | 2 fix attempts without success | Escalate to @auditor (root cause analysis) |
-| **Architectural conflict** | Change conflicts with existing architecture | Escalate to @strategist for design decision |
-| **Cross-cutting impact** | Change affects 3+ independent modules | Escalate to @strategist for impact analysis |
-| **Data inconsistency** | Found data that contradicts expected state | Escalate to @auditor for data consistency check |
-| **Security concern** | Change touches auth, secrets, or user input | Escalate to @auditor for security review |
+| **Difficulty** | No stored pattern for this task | Escalate to @strategist for planning |
+| **Surprise** | Tool failure, unexpected output | Escalate to @auditor for root cause |
+| **Error** | 2 fix attempts without success | Escalate to @auditor (root cause analysis) |
+| **Strain** | Ambiguous scope, 2+ valid approaches | Escalate to @strategist for design decision |
+| **Cross-cutting** | Change affects 3+ independent modules | Escalate to @strategist for impact analysis |
+| **Security** | Change touches auth, secrets, user input | Escalate to @auditor for security review |
 
 ### Escalation Ladder
-When re-classification fires, follow this ladder (max 2 hops):
-
 1. **Discovery needed** → @brainstormer (find patterns, map scope)
 2. **Planning needed** → @strategist (design approach, assess impact)
 3. **Multiple perspectives needed** → @council (DEBATE MODE for trade-offs)
 4. **Shared module impact** → @auditor (verify no regressions)
 
-### Re-Classification Output
-When escalating, produce this output before dispatching:
-```
-<reclassification>
-Trigger: [which trigger fired]
-Original scope: [what we thought]
-Actual scope: [what we found]
-Escalating to: [@agent]
-Reason: [why this agent]
-</reclassification>
-```
+### WYSIATI Guard (before claiming completion)
+1. What files, dependencies, or constraints have I not yet examined?
+2. Does my solution actually satisfy all original constraints?
+3. What edge cases am I blind to because I haven't seen them?
 
 ## Escalation Triggers
 
@@ -272,7 +262,7 @@ Stop and recommend a specialist if:
 - A UI change needs visual polish beyond "functional"
 - A decision has long-term architectural consequences
 - You need to understand a library you've never seen
-- **ANY mid-task re-classification trigger fires (see protocol above)**
+- **ANY mid-task handoff trigger fires (see protocol above)**
 
 ## MEMORY SYSTEMS (MANDATORY)
 See: agents/_shared/memory-systems.md
