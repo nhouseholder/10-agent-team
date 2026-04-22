@@ -200,8 +200,8 @@ function runScenarioChecks() {
     ]),
     scenario("agent model inheritance", [
       {
-        pass: Boolean(opencode.model),
-        message: "opencode.json missing a default model",
+        pass: !Object.prototype.hasOwnProperty.call(opencode, "model") || Boolean(opencode.model),
+        message: "opencode.json may omit the default model, but if it defines model it must be non-empty",
       },
       {
         pass: !Object.prototype.hasOwnProperty.call(opencode, "models"),

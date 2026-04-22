@@ -48,4 +48,4 @@ The core prompts use a Kahneman-style fast/slow operating heuristic. Treat it as
 
 ## Version
 
-1.7.0 — Scoped validation, incremental prompts, council gating, and skill renaming
+1.7.1 — Restored valid OpenCode config inheritance after a `models` regression on main

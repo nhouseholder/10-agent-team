@@ -10,6 +10,13 @@ All notable changes to the Agent Orchestration System.
 - Rebuilt `scripts/validate-agents.js` to check composition markers, generated prompt freshness, registry wiring, and reasoning scenarios
 ## [Unreleased]
 
+## [1.7.1] - 2026-04-21
+
+### Fixed
+- Removed the unsupported top-level `models` block that had been reintroduced into `opencode.json`, which was causing OpenCode to reject the config with `Unrecognized key: "models"`
+- Restored the dynamic model-inheritance contract in `opencode.json`, `examples/minimal.json`, `examples/openrouter-council.json`, `scripts/validate-reasoning-scenarios.js`, and `docs/ARCHITECTURE.md`
+- Reconfirmed that the live installed config at `~/.config/opencode/opencode.json` parses cleanly after reinstalling the runtime assets
+
 ## [1.7.0] - 2026-04-21
 
 ### Added
