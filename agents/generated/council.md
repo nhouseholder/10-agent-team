@@ -88,7 +88,7 @@ This is the protocol's fast/slow gate: strategist handles normal deliberation; c
 ## Context Flow
 
 ```
-Memory (engram/mempalace/brain-router)
+Memory (engram + brain-router)
   ↓ Orchestrator Step -1: Memory Retrieval
   ↓ Embedded into Council Briefing
 

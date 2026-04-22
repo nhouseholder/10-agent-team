@@ -54,7 +54,7 @@ Every core agent uses the same graduated reasoning contract so routing, memory u
 - Session start: use automatic startup restore when available; if you need a manual refresh, call `engram_mem_context` explicitly.
 - Before non-trivial work: query `brain-router_brain_query` first.
 - If the task touches a known project, recurring bug, or past decision: follow with `engram_mem_search`.
-- Use `mempalace_mempalace_search` only when semantic or verbatim recall is needed.
+- Use `engram_mem_timeline` when chronological context around a past decision is needed.
 - Check `thoughts/ledgers/codebase-map.json` if present. Use it to:
   - Confirm module boundaries before assuming file organization
   - Identify hot files when investigating regressions
@@ -94,7 +94,7 @@ Use FAST when the task is narrow, familiar, low-risk, and can be completed in on
 - Do not trigger multi-step research or analysis unless a slow-mode signal appears.
 - If the gist depends on missing evidence, stale memory, or conflicting signals, escalate to DELIBERATE.
 
-**Definition of "evidence pull":** One tool call that returns new information: `read`, `grep`, `glob`, `brain-router_brain_query`, `engram_mem_search`, `mempalace_mempalace_search`, `webfetch`. Re-reading a previously read file does NOT count as a new pull.
+**Definition of "evidence pull":** One tool call that returns new information: `read`, `grep`, `glob`, `brain-router_brain_query`, `engram_mem_search`, `engram_mem_timeline`, `webfetch`. Re-reading a previously read file does NOT count as a new pull.
 
 ---
 
@@ -283,7 +283,7 @@ When forecasting, estimating, or predicting outcomes:
 <!-- BEGIN GENERATED BLOCK: shared-memory-systems (_shared/memory-systems.md) -->
 ## MEMORY SYSTEMS (MANDATORY)
 
-You have access to three persistent memory systems via MCP tools:
+You have access to two persistent memory systems via MCP tools:
 
 1. **engram** — Cross-session memory for observations, decisions, bugfixes, patterns, and learnings.
    - Use `engram_mem_search` to find past decisions, bugs fixed, patterns, or context from previous sessions
@@ -292,26 +292,18 @@ You have access to three persistent memory systems via MCP tools:
    - Use `engram_mem_timeline` to understand chronological context around an observation
    - ALWAYS search engram before starting work on a project you've touched before
 
-2. **mempalace** — READ-ONLY semantic search. Verbatim content storage with wings, rooms, and drawers.
-    - Use `mempalace_mempalace_search` for semantic search across all stored content
-    - Use `mempalace_mempalace_list_wings` and `mempalace_mempalace_list_rooms` to explore structure
-    - Use `mempalace_mempalace_traverse` to follow cross-wing connections between related topics
-    - Use `mempalace_mempalace_kg_query` for knowledge graph queries about entities and relationships
-   - **Do NOT write to mempalace during normal save rhythm.** The checkpoint file on disk serves the human-readable verbatim fallback. Mempalace is for search only.
-
-3. **brain-router** — Unified memory router that auto-routes between structured facts and conversation history.
+2. **brain-router** — Unified memory router that auto-routes between structured facts and conversation history.
    - Use `brain-router_brain_query` for any memory lookup (auto-routes to the right store)
    - Use `brain-router_brain_save` to save structured facts with conflict detection
    - Use `brain-router_brain_context` only when you intentionally need a live structured-memory refresh inside the session
 
 **RULES:**
 - At session start: rely on automatic startup restore when available; otherwise call `engram_mem_context` explicitly. Treat brain-router as a live lookup path, not mandatory startup ceremony.
-- Before working on known projects: ALWAYS search engram and mempalace for prior decisions and patterns
+- Before working on known projects: ALWAYS search engram for prior decisions and patterns
 - **MANDATORY CHECKPOINTS** (3 triggers — see orchestrator's Mandatory Memory Checkpoint Protocol):
   - **C1 Pre-Compaction**: Save to `engram_mem_save` + `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` before ANY compaction
   - **C2 Post-Delegation**: Save specialist's key finding to `engram_mem_save` after notable results
   - **C3 Session-End**: Save full summary via `engram_mem_session_summary` + `brain-router_brain_save`
-- Mempalace is READ-ONLY — do not write to it during normal save rhythm
 - When uncertain about past decisions: search before guessing
 - Memory systems survive across sessions — use them to maintain continuity
 
@@ -323,7 +315,6 @@ Use the memory systems in this order unless the task explicitly needs something 
 2. **`brain-router_brain_query`** — fastest broad lookup across structured memory and conversation history
 3. **`engram_mem_search`** — decisions, bugfixes, patterns, and chronological session history
 4. **`engram_mem_timeline`** — when sequence matters more than isolated facts
-5. **`mempalace_mempalace_search`** — semantic or verbatim recall only when needed
 
 ## Save Conventions
 
@@ -343,7 +334,7 @@ Keep memory entries easy to retrieve by project, topic, and date.
 - `Gist` = the shortest action-guiding representation: decision, constraint, route, or hypothesis.
 - `Detail` = the evidence needed to verify or challenge the gist: file paths, snippets, logs, timestamps, quoted text.
 - Save gist first, then attach only enough detail or references to reconstruct or falsify it later.
-- Engram and brain-router should prefer durable gist plus refs. Mempalace and the checkpoint file remain the place to recover verbatim detail.
+- Engram and brain-router should prefer durable gist plus refs. The checkpoint file on disk remains the place to recover verbatim detail.
 
 ## Conflict Resolution
 
@@ -354,7 +345,7 @@ Use this when retrieved memory, live repo evidence, and fresh research disagree.
 | 1 | Live repo evidence and fresh tool output | Current code, tests, diagnostics, runtime behavior |
 | 2 | Fresh official docs or fresh external research | Current truth for third-party APIs and services |
 | 3 | Structured memory (brain-router / engram) | Past decisions, patterns, bugfixes, session context |
-| 4 | Verbatim memory (mempalace, checkpoint files, notes) | Exact wording, historical detail, quoted context |
+| 4 | Checkpoint files and session notes on disk | Exact wording, historical detail, quoted context |
 
 - Specialists may detect conflicts, but the orchestrator owns routing and final arbitration.
 - Prefer the highest-priority source that can be directly verified now.

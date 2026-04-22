@@ -33,7 +33,7 @@ Every core agent uses the same graduated reasoning contract so routing, memory u
 - Session start: use automatic startup restore when available; if you need a manual refresh, call `engram_mem_context` explicitly.
 - Before non-trivial work: query `brain-router_brain_query` first.
 - If the task touches a known project, recurring bug, or past decision: follow with `engram_mem_search`.
-- Use `mempalace_mempalace_search` only when semantic or verbatim recall is needed.
+- Use `engram_mem_timeline` when chronological context around a past decision is needed.
 - Check `thoughts/ledgers/codebase-map.json` if present. Use it to:
   - Confirm module boundaries before assuming file organization
   - Identify hot files when investigating regressions
@@ -73,7 +73,7 @@ Use FAST when the task is narrow, familiar, low-risk, and can be completed in on
 - Do not trigger multi-step research or analysis unless a slow-mode signal appears.
 - If the gist depends on missing evidence, stale memory, or conflicting signals, escalate to DELIBERATE.
 
-**Definition of "evidence pull":** One tool call that returns new information: `read`, `grep`, `glob`, `brain-router_brain_query`, `engram_mem_search`, `mempalace_mempalace_search`, `webfetch`. Re-reading a previously read file does NOT count as a new pull.
+**Definition of "evidence pull":** One tool call that returns new information: `read`, `grep`, `glob`, `brain-router_brain_query`, `engram_mem_search`, `engram_mem_timeline`, `webfetch`. Re-reading a previously read file does NOT count as a new pull.
 
 ---
 

@@ -45,7 +45,7 @@ Before executing the decision tree, check memory when:
 **Memory lookup priority:**
 1. `brain-router_brain_query` — first attempt, auto-routes to the right store
 2. `engram_mem_search` — if structured observations needed (decisions, bugfixes, patterns)
-3. `mempalace_mempalace_search` — if semantic/verbatim content needed (meeting notes, detailed patterns)
+3. `engram_mem_timeline` — if chronological context around a past decision is needed
 
 ### Memory-Informed Routing
 Use memory findings to improve routing:

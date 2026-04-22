@@ -9,8 +9,7 @@
       ],
       "environment": {
         "BRAIN_PROJECT": "global",
-        "ENGRAM_DB": "{env:HOME}/.engram/engram.db",
-        "MEMPALACE_PALACE": "{env:HOME}/.mempalace/global"
+        "ENGRAM_DB": "{env:HOME}/.engram/engram.db"
       },
       "enabled": true
     },
@@ -20,16 +19,6 @@
         "engram",
         "mcp"
       ],
-      "enabled": true
-    },
-    "mempalace": {
-      "type": "local",
-      "command": [
-        "mempalace-mcp"
-      ],
-      "environment": {
-        "MEMPALACE_PALACE": "{env:HOME}/.mempalace/global"
-      },
       "enabled": true
     }
   },

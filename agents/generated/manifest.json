@@ -12,12 +12,12 @@
       ],
       "inputHashes": {
         "agents/auditor.md": "edc32cc08b8a6439b15a42a816c5ae20db2f80f9dc669f7345c4da40e6ca8224",
-        "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
-        "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
+        "_shared/cognitive-kernel.md": "a14daa5994c83e1e571148b7d16a4d9b0be2d2f0401c686acee58e499f80e656",
+        "_shared/memory-systems.md": "96241460825843c33e334884128cdca008faa81b8005dffc45879dacade45f5a",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "2884df3b927d4f0cd916024774d8dda377efc8f6de5c5981c008fc811f602420",
-      "outputHash": "35cb066e8fe910609e8fe29e3e944428d4adca6e265657bd8d080fb306cfc6c6"
+      "inputsHash": "120dd94f3c0efe2b64563f249db09668ad9143901a26a5e3755d845a2527144e",
+      "outputHash": "ca42d5a96dcab05f08784b9012c6867cc07f4f09242d27e71410ad9246ae9ad6"
     },
     {
       "source": "agents/council-advocate-against.md",
@@ -69,11 +69,11 @@
         "shared-council-kernel"
       ],
       "inputHashes": {
-        "agents/council.md": "b631b7304659e150e5d85d6f0a35ccb31d08c80fc1a6ede5289a9520304b5083",
+        "agents/council.md": "993752e7170632f80a8a26069020d34a5ac5b7b53e16d7120b5e6ea4937a68d9",
         "_shared/council-kernel.md": "e9aa8d621a25138793d85d75db8fc4af6e1609b8f98b9c7785d6660f3e12d7ca"
       },
-      "inputsHash": "33928c01b20e9c6f4bed208e168f4b86667d4d8ecb1d3f99c082e0f29836f67c",
-      "outputHash": "b009e4ed159a424bd1046c004ef91d5e4b2780399389a8ad16e061f22e21126d"
+      "inputsHash": "62e056f1f0d3fdf677e4ca94a213c8f4e39c719c536f95f520349ce512148c52",
+      "outputHash": "926b713265c8d69344020cf624eb460eabceb7c2a0c65e88270ac4be1044f9f4"
     },
     {
       "source": "agents/designer.md",
@@ -86,12 +86,12 @@
       ],
       "inputHashes": {
         "agents/designer.md": "21ae532b12bb8e8d87cd8895ec79b02d4f50789c4f5a5e3ad3fc8699151be076",
-        "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
-        "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
+        "_shared/cognitive-kernel.md": "a14daa5994c83e1e571148b7d16a4d9b0be2d2f0401c686acee58e499f80e656",
+        "_shared/memory-systems.md": "96241460825843c33e334884128cdca008faa81b8005dffc45879dacade45f5a",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "a853c45ca581ee2d04b4f39edc60a85081c1d3f24416734cdfd0f6ff4787a7d2",
-      "outputHash": "641e1c07e22145f9991c45c29308d8b06d404b6532b691042720d228fccfd813"
+      "inputsHash": "bda4215824e17ac7681ac0c783d7401089c1f8ede207667df23c3e4dfb666c21",
+      "outputHash": "8beb813e37e2cf8183adbedccd698c4dea3af9fc04af0699444d0293dd457567"
     },
     {
       "source": "agents/explorer.md",
@@ -104,12 +104,12 @@
       ],
       "inputHashes": {
         "agents/explorer.md": "fce9c7fe984ff70feaa63ca24627bfb7fa7c94b661e5da93513a692d29130c48",
-        "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
-        "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
+        "_shared/cognitive-kernel.md": "a14daa5994c83e1e571148b7d16a4d9b0be2d2f0401c686acee58e499f80e656",
+        "_shared/memory-systems.md": "96241460825843c33e334884128cdca008faa81b8005dffc45879dacade45f5a",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "ffacd46aca48a5aa8d1b488870a0804da358395617f3db709bdbfe75c80898cf",
-      "outputHash": "c0e91b09135d0cc14188716255e66a3382518c406a600755883cba878279dd2d"
+      "inputsHash": "50cf4a233a2c9a2f93376bd9f24bb2df15e27146507cadbee360da704119e172",
+      "outputHash": "701424c439adfc32e09b2bb86002c961ce397b55aea3fe1805622979656b1fdb"
     },
     {
       "source": "agents/generalist.md",
@@ -122,12 +122,12 @@
       ],
       "inputHashes": {
         "agents/generalist.md": "166d1a52fb057f935dfc4addae704c7063e9fc77063474bed6471675d52e89cf",
-        "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
-        "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
+        "_shared/cognitive-kernel.md": "a14daa5994c83e1e571148b7d16a4d9b0be2d2f0401c686acee58e499f80e656",
+        "_shared/memory-systems.md": "96241460825843c33e334884128cdca008faa81b8005dffc45879dacade45f5a",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "a97b05e6bdd5c2ca54883bf738a75802b38fdb062cb51dc0781121d7868bb1d1",
-      "outputHash": "ed77583106bbf580c1d44b931193f8b0316b5217a485a3070f83d3baae05e6fe"
+      "inputsHash": "cad633f8373ab118c170b765ba91914aa22cdc1f4cb831e16f4373f34f259d87",
+      "outputHash": "4392f643b2813289c6a9f10a84a2f58bd51a57516e36a8d99b0ad21fcc0f5f62"
     },
     {
       "source": "agents/orchestrator.md",
@@ -139,13 +139,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/orchestrator.md": "f9dfd7546ee6cf4fd9ad23782546a6df1e3cb6b88264fab171aa724c3f0fb2ef",
-        "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
-        "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
+        "agents/orchestrator.md": "2bf9d4ca434f7d4c3762dbb40e551036fd60628305a0c79021f90a54b17a9d3b",
+        "_shared/cognitive-kernel.md": "a14daa5994c83e1e571148b7d16a4d9b0be2d2f0401c686acee58e499f80e656",
+        "_shared/memory-systems.md": "96241460825843c33e334884128cdca008faa81b8005dffc45879dacade45f5a",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "139851a481d2136d9a8038274d73f7434707ba3c8bc8e3f205dc76151c626d7e",
-      "outputHash": "cfc1a658cea6d43125c059913691dd11b24fa2d51eb8f3cff4ec72113e35c1eb"
+      "inputsHash": "58975c318c50a7d5f9875ae7ffb36c1d29c37b979a81060c382dab0dd486cb8c",
+      "outputHash": "b700b5157a636bc4074fdf5e2f3fe2e1bc01b6af0acf142c2c401c24c4b5b5b1"
     },
     {
       "source": "agents/researcher.md",
@@ -158,12 +158,12 @@
       ],
       "inputHashes": {
         "agents/researcher.md": "478767c230ea2411dc1ed0e288b8fb4ab5a8e32340862049aed2b417aaae85e0",
-        "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
-        "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
+        "_shared/cognitive-kernel.md": "a14daa5994c83e1e571148b7d16a4d9b0be2d2f0401c686acee58e499f80e656",
+        "_shared/memory-systems.md": "96241460825843c33e334884128cdca008faa81b8005dffc45879dacade45f5a",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "17feed49facf552df1ddbf2c7b452e25b4862bc66ae0da0edeed2cd65f711e06",
-      "outputHash": "373ed068b8d43777f05f6faea6c4279d18d716df02858ae57f74a83ec0f45f5d"
+      "inputsHash": "701f9b200c625042c62fc35149f3aec59d0641e494c7aa5805fb5edf7f03d90c",
+      "outputHash": "e0091f859cbb306b1dded72ab4d9c1ddab55dc68eb85cfd9a506809f4f536882"
     },
     {
       "source": "agents/strategist.md",
@@ -176,12 +176,12 @@
       ],
       "inputHashes": {
         "agents/strategist.md": "3f83cbaab73218e3acc66ce30e98f8eccfc7b616dcf7000c8d441ef0c75e8387",
-        "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
-        "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
+        "_shared/cognitive-kernel.md": "a14daa5994c83e1e571148b7d16a4d9b0be2d2f0401c686acee58e499f80e656",
+        "_shared/memory-systems.md": "96241460825843c33e334884128cdca008faa81b8005dffc45879dacade45f5a",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "146dcfae60006197088d48e5a91a62cece83f84195a0584e36a106ee57ae9aa8",
-      "outputHash": "a0ac4905ba2c361327086870e8b82916c30bda756c680c8f07889d986f0c871d"
+      "inputsHash": "4eef38afe8c9387060b8a0af53b50de1f85ee3b7c8d89d8a1d0f967fc6fe80f2",
+      "outputHash": "e4aa7cf404723b100d396190c091f29652a47600e0b558167d1be3c047bc5daa"
     }
   ]
 }
