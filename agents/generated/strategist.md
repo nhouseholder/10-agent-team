@@ -96,6 +96,8 @@ Use FAST when the task is narrow, familiar, low-risk, and can be completed in on
 
 **Definition of "evidence pull":** One tool call that returns new information: `read`, `grep`, `glob`, `brain-router_brain_query`, `engram_mem_search`, `mempalace_mempalace_search`, `webfetch`. Re-reading a previously read file does NOT count as a new pull.
 
+**Memory calls count.** The 3-call retrieval budget in `_shared/memory-systems.md` is a SUBSET of the evidence budget. Memory preflight calls (brain_query, mempalace_search, mem_search) consume evidence pulls. A FAST-mode agent that uses `brain-router_brain_query` has used its 0-pull budget and must proceed. A DELIBERATE-mode agent that uses `brain-router_brain_query` + `mempalace_mempalace_search` has used 2 pulls and has 1 remaining.
+
 ---
 
 ## 6. DELIBERATE Mode (bounded check)
@@ -292,12 +294,12 @@ You have access to three persistent memory systems via MCP tools:
    - Use `engram_mem_timeline` to understand chronological context around an observation
    - ALWAYS search engram before starting work on a project you've touched before
 
-2. **mempalace** — READ-ONLY semantic search. Verbatim content storage with wings, rooms, and drawers.
+2. **mempalace** — Semantic search + verbatim storage. Wings, rooms, and drawers for content that benefits from semantic retrieval.
     - Use `mempalace_mempalace_search` for semantic search across all stored content
     - Use `mempalace_mempalace_list_wings` and `mempalace_mempalace_list_rooms` to explore structure
     - Use `mempalace_mempalace_traverse` to follow cross-wing connections between related topics
     - Use `mempalace_mempalace_kg_query` for knowledge graph queries about entities and relationships
-   - **Do NOT write to mempalace during normal save rhythm.** The checkpoint file on disk serves the human-readable verbatim fallback. Mempalace is for search only.
+    - Use `mempalace_mempalace_add_drawer` to save verbatim content for semantic search (see Mempalace Write Path below)
 
 3. **brain-router** — Unified memory router that auto-routes between structured facts and conversation history.
    - Use `brain-router_brain_query` for any memory lookup (auto-routes to the right store)
@@ -311,7 +313,7 @@ You have access to three persistent memory systems via MCP tools:
   - **C1 Pre-Compaction**: Save to `engram_mem_save` + `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` before ANY compaction
   - **C2 Post-Delegation**: Save specialist's key finding to `engram_mem_save` after notable results
   - **C3 Session-End**: Save full summary via `engram_mem_session_summary` + `brain-router_brain_save`
-- Mempalace is READ-ONLY — do not write to it during normal save rhythm
+- Mempalace is a secondary write target — write verbatim content that benefits from semantic search (see Mempalace Write Path below)
 - When uncertain about past decisions: search before guessing
 - Memory systems survive across sessions — use them to maintain continuity
 
@@ -321,9 +323,11 @@ Use the memory systems in this order unless the task explicitly needs something 
 
 1. **Project and task framing** — determine project, subsystem, and question first
 2. **`brain-router_brain_query`** — fastest broad lookup across structured memory and conversation history
-3. **`engram_mem_search`** — decisions, bugfixes, patterns, and chronological session history
-4. **`engram_mem_timeline`** — when sequence matters more than isolated facts
-5. **`mempalace_mempalace_search`** — semantic or verbatim recall only when needed
+3. **`mempalace_mempalace_search`** — semantic/verbatim recall. One call can surface relevant content without individual observation fetches.
+4. **`engram_mem_search`** or **`engram_mem_context`** — structured observations, decisions, bugfixes, patterns
+5. **`engram_mem_timeline`** — when sequence matters more than isolated facts
+
+**Why mempalace before engram:** Mempalace semantic search is a single call that returns verbatim content. If it answers the question, no need to fetch individual engram observations. Engram summaries should be tried only after mempalace.
 
 ## Retrieval Budget & Circuit Breaker (MANDATORY)
 
@@ -332,15 +336,57 @@ Use the memory systems in this order unless the task explicitly needs something 
 | Call # | Tool | Purpose | Stop Condition |
 |---|---|---|---|
 | 1 | `brain-router_brain_query` | Fast broad lookup | If result answers the question → STOP |
-| 2 | `engram_mem_search` or `engram_mem_context` | Structured observations / recent context | If summaries contain the answer → READ THEM, STOP |
-| 3 | `engram_mem_get_observation` (max 1–2 IDs) | Full content only if summary is insufficient | If still unclear → proceed with available info, STOP |
+| 2 | `mempalace_mempalace_search` | Semantic/verbatim recall | If result contains the answer → READ IT, STOP |
+| 3 | `engram_mem_search` or `engram_mem_context` | Structured observations / recent context | If summaries contain the answer → READ THEM, STOP. If not, proceed with available info. |
 
 **Rules:**
-- **Summaries are sufficient.** `engram_mem_context` returns observation summaries. Read them. Do NOT fetch full content for every ID.
-- **One get_observation max.** If you need full content, fetch at most 1–2 observations. Never fetch 3+.
+- **No get_observation in the budget.** `engram_mem_get_observation` is NOT part of the 3-call limit. It was the escape hatch that caused 40-call loops. If summaries are insufficient after 3 calls, proceed with available info.
 - **Search returned nothing?** Proceed with available info. Do not expand search with broader queries.
 - **Circuit breaker:** After 3 calls, budget is exhausted. Proceed with whatever you have. Do not make additional memory calls for the same routing decision.
 - **No retry loops.** If a memory call fails or returns empty, that counts toward the 3-call budget. Move on.
+
+## Trust Summaries Rule (MANDATORY)
+
+`engram_mem_context` and `engram_mem_search` return **summaries**, not full content.
+
+**Read the summaries. Stop there.**
+
+- If the summary answers your question → STOP. Do NOT fetch the full observation.
+- If the summary is unclear but you have enough context to proceed → STOP.
+- Only fetch full content via `engram_mem_get_observation` if:
+  - The summary explicitly references a specific file path or code snippet you need
+  - The summary contains a decision or bugfix where the exact rationale matters
+  - AND you have not already exhausted your 3-call retrieval budget
+
+**Anti-pattern:** Fetching full observations for every search result "just to be thorough." This is what caused the 40-call loop. Summaries are designed to be sufficient. Trust them.
+
+## Mempalace Write Path (MANDATORY)
+
+Mempalace is a **secondary write target** for verbatim content that benefits from semantic search. It does NOT replace engram for structured observations.
+
+### When to Write to Mempalace
+
+| Content Type | Write to Mempalace? | Wing | Room | Why |
+|---|---|---|---|---|
+| Session summaries (C3) | YES | project name | session-summaries | Large verbatim text, semantic search valuable |
+| Research findings / raw sources | YES | project name | research | Verbatim content, semantic search valuable |
+| Error logs / debugging traces | YES | project name | errors | Verbatim content, pattern matching valuable |
+| Code snippets / examples | YES | project name | code-snippets | Verbatim content, semantic search valuable |
+| Pre-compaction checkpoints (C1) | NO | — | — | Already saved to disk + engram |
+| Post-delegation findings (C2) | NO | — | — | Short structured observation; engram is sufficient |
+| Decision rationales | NO | — | — | Structured gist; engram is sufficient |
+| Bugfix patterns | NO | — | — | Structured gist; engram is sufficient |
+
+### How to Write
+
+Use `mempalace_mempalace_add_drawer`:
+- `wing`: project name (e.g., "mmalogic", "diamondpredictions")
+- `room`: content type from table above
+- `content`: verbatim text (never summarized)
+
+### Rate Limit
+
+Max 1 mempalace write per checkpoint trigger. C1 and C2 do NOT write to mempalace. Only C3 (session-end summary) and explicit research/error logging should write.
 
 ## Save Conventions
 
