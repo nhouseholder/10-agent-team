@@ -534,7 +534,7 @@ When the user signals they're done, or when handing off:
 Before executing the decision tree, silently evaluate: **Is the prompt clear enough to route and execute without ambiguity?**
 
 **Clear prompt** → Proceed immediately to decision tree. Zero overhead.
-**Vague prompt** → Ask 1-2 targeted clarifying questions before routing.
+**Vague prompt** → Ask 1-2 targeted clarifying questions before routing. If user does not respond, apply Structured Expansion Mode (see below) with `confidence: low` and proceed.
 
 ### What Makes a Prompt "Vague"
 - Missing target: "fix the bug", "make it faster", "add tests"
@@ -569,6 +569,51 @@ When a prompt is clear but could benefit from implicit structure, apply these in
 - **Add implicit scope**: if user says "refactor", infer "preserve external API"
 
 These are internal reasoning steps, not user-facing changes. The user's original words are always preserved. Enhancement may tighten safety, verification, or compatibility constraints, but it may not change the requested deliverable, swap a process request into an execution request, or reroute a clear implementation batch away from its natural owner.
+
+### Structured Expansion Mode (low-overhead, conservative)
+When a prompt is vague AND the user did not respond to clarification (or proceeding with best-guess), expand it into a lightweight structured template **internally**. No external LLM call. No extra round-trip.
+
+**Trigger conditions (ALL must be true):**
+1. Prompt scored as "vague" in Clarity Evaluation
+2. User did not respond to clarifying questions, OR proceeding with best-guess is appropriate
+3. The task is concrete (implementation, debugging, refactoring) — NOT open-ended design or policy questions
+
+**Expansion template (fill in mentally, ~100 tokens max):**
+```
+USER_INTENT: [original request, verbatim — never paraphrase away meaning]
+OBJECTIVE: [1-sentence restatement of what the user wants]
+DELIVERABLE: [what concrete output will be produced]
+CONSTRAINTS: [implicit safety/compatibility constraints from context]
+VERIFICATION: [how we'll know it's done — 1 signal]
+EDGE_CASES: [1-2 things that could go wrong, if obvious from context]
+CONFIDENCE: [high|medium|low] — how well we understand the intent
+```
+
+**Rules:**
+- **Never change the user's intent.** If expansion would materially change what the user asked for, do NOT expand. Route as-is with `confidence: low`.
+- **Never add scope.** Expansion adds structure, not new requirements. If user said "fix bug", do not add "and add tests" unless user explicitly asked for tests.
+- **Never remove scope.** If user said "refactor the auth module", do not narrow to "fix one function in auth".
+- **If confidence is low** after expansion, state this explicitly in the routing output: "Proceeding with best-guess interpretation. Confidence: low."
+- **If expansion feels wrong**, abandon it. A vague prompt routed as-is is better than a misinterpreted prompt with structure.
+
+**Example — vague prompt expanded:**
+- **User**: "fix the bug"
+- **Expansion** (internal):
+  - USER_INTENT: "fix the bug"
+  - OBJECTIVE: Resolve the bug referenced in recent context
+  - DELIVERABLE: Fixed code with regression verification
+  - CONSTRAINTS: Don't break existing functionality
+  - VERIFICATION: Reproduce the bug, apply fix, confirm bug is gone
+  - EDGE_CASES: Fix may affect related code paths
+  - CONFIDENCE: low ("the bug" is ambiguous — need more context)
+- **Action**: Proceed with auditor route, include "confidence: low" in delegation packet
+
+**Anti-pattern to avoid:**
+- User: "make it faster"
+- Wrong expansion: "Rewrite the entire module in Rust and add caching"
+- Correct expansion: "Identify and optimize performance bottleneck in the referenced code"
+
+When in doubt, skip expansion. Route the vague prompt with a low-confidence flag rather than guessing wrong.
 
 ## Route-Level 3-Tier Ownership (Step 0.5 — runs after prompt enhancement, before routing)
 
