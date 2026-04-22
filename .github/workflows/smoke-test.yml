@@ -54,3 +54,6 @@ jobs:
 
       - name: Run agent validation
         run: node scripts/validate-agents.js --check=generated --quiet
+
+      - name: Validate think tool schema
+        run: node scripts/validate-think-tool.js --sample
