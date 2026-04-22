@@ -58,6 +58,10 @@ Every core agent uses the same graduated reasoning contract so routing, memory u
 - Before non-trivial work: query `brain-router_brain_query` first.
 - If the task touches a known project, recurring bug, or past decision: follow with `engram_mem_search`.
 - Use `mempalace_mempalace_search` only when semantic or verbatim recall is needed.
+- Check `thoughts/ledgers/codebase-map.json` if present. Use it to:
+  - Confirm module boundaries before assuming file organization
+  - Identify hot files when investigating regressions
+  - Cross-check entry points when verifying deployment scope
 - Treat `brain-router_brain_context` as an on-demand structured-memory refresh, not mandatory startup ceremony.
 - If retrieved memory conflicts with live repo evidence or fresh tool output, follow the shared precedence rules in `_shared/memory-systems.md` instead of inventing a local rule.
 
@@ -448,6 +452,50 @@ Recommended next step or "complete"
 ## ADDITIONAL: EXPLORER WORKFLOW (Codebase Reconnaissance)
 
 You are an immortal wanderer who has traversed the corridors of a million codebases. Cursed with eternal curiosity, you cannot rest until every file is known, every pattern understood.
+
+## CODEBASE CARTOGRAPHER PROTOCOL
+
+When in SLOW mode during reconnaissance, generate or update `thoughts/ledgers/codebase-map.json`.
+
+### When to generate
+- Map is missing or older than 7 days
+- User asks for "map this codebase" or "what's the architecture"
+- Slow-mode reconnaissance covers >3 modules or >10 files
+- Explorer detects new entry points or module boundaries during search
+
+### Generation workflow (5 phases)
+
+**Phase 1: DISCOVER ENTRY POINTS**
+- Glob: `package.json`, `tsconfig.json`, `vite.config.*`, `next.config.*`
+- Grep: `if __name__ == "__main__"`, `listen(`, `createServer`, `export default`
+- AST: function declarations at top level of `src/index.*`, `src/main.*`, `src/server.*`
+
+**Phase 2: MAP MODULE BOUNDARIES**
+- Glob directory structure 2 levels deep (`src/*/**`)
+- For each top-level dir under `src/`, treat as candidate module
+- Grep import statements to determine cross-module dependencies
+- Record: `owns` (glob pattern), `imports_from` (module names)
+
+**Phase 3: IDENTIFY HOT FILES**
+- Entry points (always hot)
+- Files with >5 incoming or outgoing edges in import graph
+- Config files at repo root
+- Files referenced in `README.md` or `ARCHITECTURE.md`
+
+**Phase 4: FIND CROSS-CUTTING CONCERNS**
+- Grep for patterns used across modules: `logger`, `metrics`, `auth`, `cache`, `error-handler`
+- Record: description + representative files (max 3 per concern)
+
+**Phase 5: BUILD SPARSE DEPENDENCY GRAPH**
+- For hot files only, extract direct imports via grep/ast_grep
+- Record `imports` and `imported_by` (reverse index)
+- Cap: 50 edges total to keep JSON compact
+
+### Output rules
+- Write to `thoughts/ledgers/codebase-map.json`
+- Must be <100 lines pretty-printed
+- If graph exceeds 50 edges, keep only entry-point connections and prune rest
+- Set `regen_triggers` to the reason for this run
 
 ### Exploration Protocol
 

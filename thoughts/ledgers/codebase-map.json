@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-04-22T00:00:00Z",
+  "generator": "explorer-cartographer-v1",
+  "entry_points": {
+    "cli": ["scripts/compose-prompts.js"]
+  },
+  "module_boundaries": {
+    "agents": { "owns": ["agents/*.md"], "imports_from": ["_shared"] },
+    "_shared": { "owns": ["_shared/*.md"], "imports_from": [] },
+    "scripts": { "owns": ["scripts/*"], "imports_from": ["agents", "_shared"] },
+    "templates": { "owns": ["templates/*"], "imports_from": [] }
+  },
+  "hot_files": {
+    "scripts/compose-prompts.js": { "type": "core", "touch_count": 4 },
+    "agents/explorer.md": { "type": "core", "touch_count": 2 },
+    "agents/auditor.md": { "type": "core", "touch_count": 2 },
+    "_shared/cognitive-kernel.md": { "type": "core", "touch_count": 3 }
+  },
+  "cross_cutting_concerns": {
+    "compose-insert": { "files": ["scripts/compose-prompts.js"], "description": "Injects shared blocks into every agent prompt" }
+  },
+  "dependency_graph": {
+    "scripts/compose-prompts.js": { "imports": ["agents/*.md", "_shared/*.md"], "imported_by": [] }
+  },
+  "regen_triggers": ["initial map generation"]
+}

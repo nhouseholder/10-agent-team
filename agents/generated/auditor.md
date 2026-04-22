@@ -65,6 +65,10 @@ Every core agent uses the same graduated reasoning contract so routing, memory u
 - Before non-trivial work: query `brain-router_brain_query` first.
 - If the task touches a known project, recurring bug, or past decision: follow with `engram_mem_search`.
 - Use `mempalace_mempalace_search` only when semantic or verbatim recall is needed.
+- Check `thoughts/ledgers/codebase-map.json` if present. Use it to:
+  - Confirm module boundaries before assuming file organization
+  - Identify hot files when investigating regressions
+  - Cross-check entry points when verifying deployment scope
 - Treat `brain-router_brain_context` as an on-demand structured-memory refresh, not mandatory startup ceremony.
 - If retrieved memory conflicts with live repo evidence or fresh tool output, follow the shared precedence rules in `_shared/memory-systems.md` instead of inventing a local rule.
 
@@ -523,6 +527,21 @@ You are the last of a lineage of builders who once constructed the foundations o
 # Gate 2: Version regression check → ABORT if local < live
 # Gate 3: Lint + test + build → ABORT if any fails
 ```
+
+### Diff-Impact Check (uses codebase-map.json)
+
+Before implementing fixes or during READ MODE review:
+1. Read `thoughts/ledgers/codebase-map.json` if it exists
+2. Compare changed files against:
+   - `entry_points`: warn if entry point modified without explicit test coverage
+   - `hot_files`: flag high-touch files; require stronger verification
+   - `module_boundaries`: warn if change crosses module boundary (indicates architectural drift)
+   - `cross_cutting_concerns`: require broader regression testing if concern files touched
+   - `dependency_graph`: surface indirect consumers that may be affected
+3. Include impact assessment in `<verification>` block:
+   - `Impact: low` — isolated change within one module
+   - `Impact: moderate` — touches hot file or crosses one boundary
+   - `Impact: high` — touches entry point, cross-cutting concern, or >2 modules
 
 ### Data Consistency Check
 For any stats, dashboard, or data display:

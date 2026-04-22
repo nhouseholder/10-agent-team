@@ -131,6 +131,21 @@ You are the last of a lineage of builders who once constructed the foundations o
 # Gate 3: Lint + test + build → ABORT if any fails
 ```
 
+### Diff-Impact Check (uses codebase-map.json)
+
+Before implementing fixes or during READ MODE review:
+1. Read `thoughts/ledgers/codebase-map.json` if it exists
+2. Compare changed files against:
+   - `entry_points`: warn if entry point modified without explicit test coverage
+   - `hot_files`: flag high-touch files; require stronger verification
+   - `module_boundaries`: warn if change crosses module boundary (indicates architectural drift)
+   - `cross_cutting_concerns`: require broader regression testing if concern files touched
+   - `dependency_graph`: surface indirect consumers that may be affected
+3. Include impact assessment in `<verification>` block:
+   - `Impact: low` — isolated change within one module
+   - `Impact: moderate` — touches hot file or crosses one boundary
+   - `Impact: high` — touches entry point, cross-cutting concern, or >2 modules
+
 ### Data Consistency Check
 For any stats, dashboard, or data display:
 - Totals match sum of parts?

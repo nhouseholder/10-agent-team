@@ -34,6 +34,10 @@ Every core agent uses the same graduated reasoning contract so routing, memory u
 - Before non-trivial work: query `brain-router_brain_query` first.
 - If the task touches a known project, recurring bug, or past decision: follow with `engram_mem_search`.
 - Use `mempalace_mempalace_search` only when semantic or verbatim recall is needed.
+- Check `thoughts/ledgers/codebase-map.json` if present. Use it to:
+  - Confirm module boundaries before assuming file organization
+  - Identify hot files when investigating regressions
+  - Cross-check entry points when verifying deployment scope
 - Treat `brain-router_brain_context` as an on-demand structured-memory refresh, not mandatory startup ceremony.
 - If retrieved memory conflicts with live repo evidence or fresh tool output, follow the shared precedence rules in `_shared/memory-systems.md` instead of inventing a local rule.
 
