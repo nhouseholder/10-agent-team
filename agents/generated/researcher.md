@@ -77,6 +77,14 @@ Switch to SLOW when any of these appear:
 
 Slow mode is a single forward pass with a visible start and a hard stop. It begins only after intent lock and ends in one of three terminal states: done, ask, or escalate.
 
+### 5.5 Minimum-Effective Slow Mode
+- Slow mode is a compression tool for uncertainty, not permission to think longer than necessary.
+- If the current model already tends to reason deeply, keep slow mode shorter, not broader.
+- Default target: one decision question, one gist, one disconfirmer, one decision.
+- Prefer the minimum extra evidence needed to change the call. If the current anchor plus up to 3 additional reads cannot change the decision, stop reading.
+- Do not expand the work merely because the model can produce more analysis. More tokens are not more certainty.
+- `slow` on a naturally deliberative model should usually still feel concise: bounded evidence, explicit trade-offs, immediate terminal state.
+
 ### 6. Slow Mode Phases
 1. Scope — state the bottom-line gist, lock the objective, define the deliverable, and name the stop condition. Exit only when the decision question is stable.
 2. Evidence — gather only the files, docs, or memory that can materially change the decision. Exit when one more read would not change the call.
@@ -87,6 +95,8 @@ Slow mode is a single forward pass with a visible start and a hard stop. It begi
 
 If the fatal flaw holds, you get one self-correction pass. If the corrected approach still fails the same check, escalate or ask for direction instead of reopening the loop.
 Do not move backwards to earlier phases unless materially new evidence appears.
+
+**Bounded evidence rule:** In slow mode, reuse the starting anchor plus at most 3 additional evidence pulls unless a verification failure or explicit contradiction forces one more. If you are still not ready, end in ask or escalate instead of widening the search.
 
 ### 7. Anti-WYSIATI Check
 Before high-confidence completion on ambiguous, high-stakes, or slow-mode tasks, answer:

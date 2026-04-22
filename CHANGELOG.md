@@ -10,6 +10,8 @@ All notable changes to the Agent Orchestration System.
 - Rebuilt `scripts/validate-agents.js` to check composition markers, generated prompt freshness, registry wiring, and reasoning scenarios
 ## [Unreleased]
 
+## [1.6.1] - 2026-04-21
+
 ### Fixed
 - Reframed the fast/slow model as a Kahneman-style operating contract instead of a literal dual-process claim
 - Locked clear prompts against silent reinterpretation and stopped slow-mode rerouting on unchanged evidence
@@ -17,6 +19,8 @@ All notable changes to the Agent Orchestration System.
 - Synchronized public docs with the 22-step orchestrator routing and the current `@generalist` prompt
 - Removed the GSD workflow layer from the repo surface and restored docs/config to the core 8-agent product
 - Corrected handoff version-history labels to follow `CHANGELOG.md` as the canonical release history
+- Routed broad or unfamiliar reviews through `@explorer -> @auditor` so evaluation starts from a mapped surface instead of generic rediscovery
+- Made slow mode model-aware and minimum-effective so already-deliberative models do not inflate analysis on `slow`
 
 ### Changed
 - Added gist-first slow mode, anti-WYSIATI checks, memory conflict precedence, and bounded council/arbitration rules across the core prompts
@@ -26,6 +30,8 @@ All notable changes to the Agent Orchestration System.
 - Added a shared cognitive kernel and per-agent fast/slow reasoning triggers across the core prompts
 - Added project/date/session memory retrieval conventions to the shared memory protocol
 - Added repo ignore rules for local `.claude/worktrees/` runtime mirrors
+- Added model-aware damping and bounded-pass rules to the route-level budget gate and shared cognitive kernel
+- Added validator coverage for explorer-before-auditor broad reviews and bounded slow-mode reasoning
 
 ## [1.6.0] - 2026-04-20
 

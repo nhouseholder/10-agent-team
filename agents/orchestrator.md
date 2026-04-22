@@ -195,6 +195,7 @@ Every specialist handoff must carry a compact routing packet. The packet is smal
 - `model_tier=fast` or `smart` covers routine work. `deep-reasoning` and `council` are reserved for bounded high-uncertainty work.
 - `budget_class=low` is the default for routine execution. `high` is rare and must be justified explicitly.
 - `verification_depth=light` is acceptable only for low-risk, easy-to-observe tasks. Raise depth with stakes, ambiguity, or prior failure.
+- On models that already reason expansively, `reasoning_mode=slow` means tighter structure and stronger stop rules, not a broader brief.
 - Specialists may request more depth, but they do not silently spend beyond the packet. Route changes come back to the orchestrator.
 
 ### Intent Lock Before Slow Mode
@@ -260,6 +261,10 @@ Expensive reasoning is opt-in by evidence, not the default personality of the sy
 | True multi-path arbitration | `slow` | `council` | `high` | `deep` |
 
 **Budget justification rule:** `budget_class=high` requires a one-line reason tied to risk, novelty, repeated contradiction, or explicit user request. No council fan-out or deep-reasoning tier on unchanged evidence without that justification.
+
+**Model-aware damping rule:** If the selected model already tends to over-deliberate, prefer `model_tier=smart` over `deep-reasoning` unless the user explicitly asked for deep reasoning or the decision is both high-stakes and genuinely unresolved after one bounded pass. Slow mode should narrow and terminate the work, not inflate it.
+
+**Bounded-pass rule:** Slow mode operates on one decision question with the current anchor plus at most 3 additional evidence pulls before it must choose `act`, `ask`, or `escalate`. Unfamiliarity alone is not enough to justify a high-budget deep-reasoning route.
 
 **Examples:**
 - "Single-file rename" → `fast`, `fast`, `low`, `light`
@@ -353,11 +358,11 @@ When receiving a request, classify it using this decision tree:
 4. **Is it a medium task (2-10 files, clear scope)?** → @generalist (multi-file updates, config changes, refactors)
 5. **Is it documentation/README/changelog?** → @generalist (writing, docs, content creation)
 6. **Is it a script/automation/tooling setup?** → @generalist (scripts, CI/CD config, dev tooling)
-7. **Does it need deep codebase discovery?** → @explorer
+7. **Does it need deep codebase discovery or a broad review of an unfamiliar surface?** → @explorer first
 8. **Does it need planning/spec/strategy?** → @strategist
 9. **Does it need external research/docs?** → @researcher
 10. **Does it need UI/UX polish?** → @designer
-11. **Does it need debugging/audit/review?** → @auditor
+11. **Does it need debugging/audit/review on a bounded, already-localized surface?** → @auditor
 12. **Does it need multi-model consensus?** → Council Fan-Out Protocol (3 separate LLMs)
 13. **Is it a cosmetic edit or trivial lookup?** → Do it yourself
 
@@ -372,6 +377,8 @@ When receiving a request, classify it using this decision tree:
 22. **Is it an idea, proposal, or "should we..." question?** → Idea Routing (see sub-table below)
 
 Clear-scope implementation beats meta-analysis. If the deliverable is concrete, keep the route concrete and send it to `@generalist` unless the user explicitly asked for planning/research or the objective itself is still ambiguous.
+
+**Broad review rule:** If the user asks to review, audit, or inspect a repo, subsystem, or unfamiliar codebase and no concrete failing slice is already named, start with `@explorer` to map entry points, ownership, and hot files. Then hand that map to `@auditor` if the end goal is evaluation. Do not make `@auditor` spend its first pass on generic discovery.
 
 **Idea Routing Sub-Decision:**
 
@@ -391,11 +398,12 @@ Clear-scope implementation beats meta-analysis. If the deliverable is concrete, 
 
 | Task | Agent |
 |---|---|
-| Discover what exists, find patterns | @explorer |
+| Discover what exists, find patterns, map an unfamiliar surface before review | @explorer |
 | Plan, spec, brainstorm, design before coding | @strategist |
 | Research libraries, APIs, papers, docs | @researcher |
 | UI/UX, frontend polish, responsive design | @designer |
-| Debug, audit, review, fix bugs | @auditor |
+| Debug, audit, review, fix bugs on a bounded, already-localized surface | @auditor |
+| Audit or review a broad/unfamiliar codebase | @explorer → @auditor |
 | Idea with competing paths, high-stakes trade-offs | Council Fan-Out (3 LLMs) |
 | Idea evaluation, feature proposal, feasibility | @strategist |
 | Plan execution, medium tasks, multi-file updates | @generalist |
@@ -455,6 +463,11 @@ When a request requires multiple agents sequentially (e.g., "audit then brainsto
 - Step 2: @explorer explores patterns → output: improvement opportunities
 - Step 3: @strategist writes spec + plan → output: SPEC.md + PLAN.md
 - Final: Report complete chain result
+
+**Review Chain Example**: "Review this unfamiliar repo"
+- Step 1: @explorer maps the repo, entry points, ownership boundaries, and likely hot files → output: compact review map
+- Step 2: @auditor evaluates the mapped surfaces, risks, and regressions → output: findings ordered by severity
+- Final: Report the review with explorer context, not auditor-led rediscovery
 
 **Rules for chains**:
 - Never stop between agents unless user input is required

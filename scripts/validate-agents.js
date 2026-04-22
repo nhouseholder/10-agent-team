@@ -303,6 +303,10 @@ function validateProductSurfaces(config) {
     if (!/Council Fan-Out Protocol|3-agent multi-LLM consensus protocol/i.test(readme)) {
       warnings.push("README.md should explicitly describe council as a 3-agent fan-out protocol");
     }
+
+    if (!/Broad reviews map before judging/i.test(readme) || !/@explorer \(map\) → @auditor \(review\)/i.test(readme)) {
+      warnings.push("README.md should explain that unfamiliar broad reviews route through @explorer before @auditor");
+    }
   }
 
   const memorySystems = readUtf8("agents/_shared/memory-systems.md");
@@ -403,6 +407,10 @@ function validateOrchestratorReferences(config) {
 
   if (!/memory arbitration/i.test(content)) {
     warnings.push("Orchestrator should explicitly mention memory arbitration ownership");
+  }
+
+  if (!/Broad review rule:/i.test(content) || !/@explorer[^\n]+@auditor|@explorer → @auditor/i.test(content)) {
+    errors.push("Orchestrator must explicitly route unfamiliar broad reviews through @explorer before @auditor");
   }
 
   return { label: "orchestrator references", errors, warnings };

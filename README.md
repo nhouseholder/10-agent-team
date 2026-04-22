@@ -11,7 +11,7 @@ A multi-agent coding orchestration system for OpenCode. An **orchestrator** rout
 | **strategist** | Architecture, planning, "what's next" | "How should we build this?", "Plan a feature" |
 | **researcher** | External docs & research | "How does this library work?", "Find best practices" |
 | **designer** | UI/UX implementation | "Build a dashboard", "Improve this component" |
-| **auditor** | Debug, review, improve, fix | "Fix this bug", "Improve this", "Review this code" |
+| **auditor** | Debug, review, improve, fix | "Fix this bug", "Improve this", "Review this localized code path" |
 | **council** | 3-agent multi-LLM consensus protocol | "What's the best approach?", "Should we...?" |
 | **generalist** | Plan executor, medium tasks | "Execute this plan", "Update these configs", "Refactor" |
 
@@ -35,6 +35,7 @@ Specialist executes → verifies → reports back
 - **Search before guessing** — memory is checked before every non-trivial request
 - **Rarely intervene** — clear prompts pass through with zero overhead
 - **Chain automatically** — "audit then plan then build" runs without manual handoff
+- **Broad reviews map before judging** — unfamiliar repo or subsystem reviews go `@explorer → @auditor`
 
 ## Quick Start
 
@@ -140,8 +141,8 @@ The system uses a Kahneman-style fast/slow operating contract across the full 8-
 The system detects sequential language and chains agents automatically:
 
 ```
-"Audit this code, then explore improvements, then make a plan"
-→ @auditor (audit) → @explorer (explore) → @strategist (plan)
+"Review this unfamiliar repo, then make a plan"
+→ @explorer (map) → @auditor (review) → @strategist (plan)
 ```
 
 Max chain depth: 4. Recovery: retry → escalate → pause for user input.
@@ -165,7 +166,7 @@ Three persistent memory systems survive across sessions:
 
 ## Version
 
-1.6.0 — Merged refiner→auditor (REFINE MODE), mandatory C1/C2/C3 memory checkpoints, 9→8 agents
+1.6.1 — Tightened broad-review routing (`@explorer -> @auditor`) and minimum-effective slow mode for already-deliberative models
 
 ## License
 

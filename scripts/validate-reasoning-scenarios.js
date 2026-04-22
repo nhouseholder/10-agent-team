@@ -141,6 +141,19 @@ function runScenarioChecks() {
         message: "shared cognitive kernel missing bounded self-correction rule",
       },
     ]),
+    scenario("slow mode is model-aware and bounded", [
+      {
+        pass: /Minimum-Effective Slow Mode/i.test(cognitiveKernel)
+          && /up to 3 additional reads|at most 3 additional evidence pulls/i.test(cognitiveKernel),
+        message: "shared cognitive kernel missing model-aware minimum-effective slow mode or bounded evidence rule",
+      },
+      {
+        pass: /Model-aware damping rule/i.test(orchestrator)
+          && /prefer `model_tier=smart` over `deep-reasoning`/i.test(orchestrator)
+          && /at most 3 additional evidence pulls/i.test(orchestrator),
+        message: "orchestrator missing model-aware damping or bounded-pass guard for slow mode",
+      },
+    ]),
     scenario("stable intent stays locked", [
       {
         pass: /Intent Lock/i.test(orchestrator)

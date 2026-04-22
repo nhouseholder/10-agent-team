@@ -48,4 +48,4 @@ The core prompts use a Kahneman-style fast/slow operating heuristic. Treat it as
 
 ## Version
 
-1.6.0 — Merged refiner→auditor (REFINE MODE), mandatory C1/C2/C3 memory checkpoints, 9→8 agents
+1.6.1 — Tightened broad-review routing (`@explorer -> @auditor`) and minimum-effective slow mode for already-deliberative models
