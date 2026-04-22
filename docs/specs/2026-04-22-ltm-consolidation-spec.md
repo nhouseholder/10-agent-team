@@ -128,13 +128,13 @@
 - `grep -r "mempalace" config/` → zero matches
 - Commit: `git commit -am "spec: update docs for engram-only LTM"`
 
-### Phase 5: Sync to Superpowers
+### Phase 5: Sync to GitHub
 
 | Step | Action |
 |---|---|
-| 5.1 | Copy updated `persistent-brain/` files to `~/ProjectsHQ/superpowers/` |
-| 5.2 | Copy updated `8-agent-team/` prompts to `~/ProjectsHQ/superpowers/` |
-| 5.3 | Commit + push both repos |
+| 5.1 | Commit + push `8-agent-team` changes to GitHub |
+| 5.2 | Commit + push `persistent-brain` changes to GitHub |
+| 5.3 | Verify both repos are synced |
 
 ### Rollback Procedure
 
