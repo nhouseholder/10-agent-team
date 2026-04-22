@@ -1,9 +1,7 @@
 # Anti-Patterns — Known Failures & Working Fixes
-
-> OpenCode agents check this before debugging to avoid repeating known-bad approaches.
-> Pruned 2026-04-01: kept recurring behavioral patterns + permanent rules. One-time bug fixes removed (the fix is in the code).
+> Live entries. For archived entries, see ANTI-PATTERNS-ARCHIVE-2026-04.md
 > Last updated: 2026-04-22
->
+
 > **SYSTEM BOUNDARY:** This file is for the **OpenCode 8-agent-team system** ONLY.
 > For Claude Code anti-patterns, see the separate system at `~/.opencode/anti-patterns.md`.
 > Never sync or copy between these two systems.
@@ -146,94 +144,6 @@
 - **Root cause**: Cloudflare Pages Functions middleware participates in the asset serving chain. When middleware returns `context.next()` for non-API paths, it still correctly routes to static assets. But when you skip middleware entirely for some paths, the `_redirects` catch-all takes priority, serving `index.html` for all paths including `/assets/*.js`.
 - **Fix**: Keep middleware processing ALL requests. The `new Response(response.body, response)` wrapper is necessary for static assets to be served correctly.
 - **Applies when**: Modifying Cloudflare Pages `_middleware.js`. Never exclude routes — the middleware must call `context.next()` and wrap the response for all paths.
-
-## General — iCloud Filesystem Stalling (ICLOUD_STALL)
-- **Pattern**: Grep/read stalls on iCloud files → Claude retries with different tool → same stall → token burn loop
-- **Fix**: Clone from GitHub to `/tmp/`, work there. Never retry stalling ops with a different tool — the issue is iCloud, not the tool.
-
-## General — Context Overload From Data Dumps (CONTEXT_FLOOD)
-- **Pattern**: Reading 3+ large files + dumping raw JSON in one turn → context full → silent/dead stop
-- **Fix**: Max 2 large reads per turn. Never dump raw JSON — use `python3 -c` for targeted queries. Act before reading more.
-
-## General — Empty Output Retry Loop (BLIND_RETRY)
-- **Pattern**: Command produces empty output → Claude re-runs 4+ times without diagnosing why
-- **Fix**: STOP → check exit code/stderr/cwd/deps → isolate smallest test → fix cause → THEN re-run.
-
-## General — Triple Pivot: Full Pipelines Before Math (TRIPLE_PIVOT)
-- **Pattern**: Running full backtests to test parameter changes that could be answered with arithmetic
-- **Fix**: Pre-compute gate: (1) Can math answer this? (2) Can a 10-line script? (3) Locked approach? All must pass before running pipeline.
-
-## General — Domain Flip-Flop Without Reading Spec (FLIP_FLOP)
-- **Pattern**: Changing betting/scoring/business rules 3-4 times in one session without reading the spec
-- **Fix**: Read the spec FIRST. Never change domain rules based on "I think" — read EVENT_TABLE_SPEC.md or the relevant spec file.
-
-## General — Revert Loop (REVERT_LOOP)
-- **Pattern**: Implementing a change → reverting → re-implementing → reverting. 5+ reversals of the same decision.
-- **Fix**: Lock your approach before starting. Write a 1-sentence plan. If you need to revert, explain WHY in writing before reverting.
-
-## Permanent — NEVER Accept Missing Odds
-- Prop odds must be scraped/backfilled, never accepted as null. Missing odds → missing P/L → wrong totals.
-- Run `python3 check_prop_odds.py` after any registry modification.
-
-## MLB — Synthetic-Bucket Payouts Inflate Prop Backtest ROI (SYNTHETIC_PAYOUT_OPTIMISM) — 2026-04-18
-- **Symptom**: 10 consecutive MLB HR/hits hypotheses killed (H39-H48). User asked "are we sure vegas odds are accurate?" — correct intuition.
-- **Root cause**: `mlb_predict/backtest/prop_backtester.py` had **no per-date real-odds path** for HR or hits markets. `backtest_cache/prop_odds/` archived only `K_lines/`. Every HR pick resolved through `HR_MATCHUP_BUCKETS` / `HR_ISO_BUCKETS` (synthetic, single-book BetOnlineAG, +900-capped) or flat `MARKET_JUICE["home_runs"]["over"]` = +600 when ISO/HR9 null. Every hits pick hit flat -172.
-- **Evidence** (from `sample_picks` in H39-H48 result JSONs): 6-20 of 20 HR picks had `iso_at_fire: null` → flat +600 fallback. H39 + H42 (hits): 20/20 flat +58 payout.
-- **Bias direction**: FAVORABLE to backtester. Flat +600 overpays elite-power wins (real odds ~+280-450 for Judge/Ohtani tier). Measured ROI is an optimistic upper bound — kills still stand, but live ROI on any borderline-pass would be **worse** than measured.
-- **Fix (partial, 2026-04-18)**:
-  1. Added `MULTIBOOK_ARCHIVE_DIR` + `_load_multibook(date)` + `get_archived_real_payout(market, side, player, line, date)` in `prop_backtester.py`. Resolution order: archived real → empirical cache → synthetic bucket → flat MARKET_JUICE.
-  2. Added `PropBacktester.payout_source_counts` provenance dict; `_print_payout_provenance()` reports distribution per run. Any backtest with 0% `archived_real` is bucket-only → treat ROI as optimistic.
-  3. `snapshot_prop_lines.py` already runs 2x/day via CI writing to `data/prop_lines_multibook/` with all 5 markets + full books[] array. Archive is forward-only (2026-04-17+).
-  4. Wrote `scripts/derive_hits_buckets_multibook.py` (analog to HR derive); both derive scripts GATED at 1000 rows. Hits: 621/1000 currently (~14d to clear). Fixed tuple-key JSON serialization bug in existing HR script.
-- **Blocked**: Historical 2024/2025 real prop odds. The Odds API historical = paid-tier only (`HISTORICAL_UNAVAILABLE_ON_FREE_USAGE_PLAN`, HTTP 401). BettingPros scraper live-only. Historical prop backfill requires a paid data source (~$30-100/mo) — user decision.
-- **Prevention**: Every new prop hypothesis eval must report payout_source_counts. If `archived_real` is 0%, verdict note must include "synthetic-bucket payouts — ROI is optimistic upper bound". Never cite a prop backtest ROI as "real" when provenance is 100% synthetic.
-
-## Permanent — NEVER Gate Bets by Odds Range
-- DEC odds gate caused -91.95u regression. Longshot wins (+300 to +800) cross-subsidize mid-range losses.
-- Method bets are a portfolio — never remove the tail.
-
-## Permanent — NEVER Deploy Without Commit
-- Cloudflare deploys are irreversible. Deploying from dirty working tree → old code overwrites new frontend.
-- Always: commit → push → deploy from clean state.
-
-## Permanent — NEVER Overwrite Firestore/Registry Without Backup
-- Size-check before write. If new data is smaller than existing → ABORT. Backup first, merge don't replace, post-write verify.
-
-## Permanent — NEVER Touch Frontend During Backend/Algorithm Updates
-- Algorithm update destroyed courtside-ai admin page. Backtester run overwrote live prediction page.
-- Scope: if the task says "algorithm," touch ONLY algorithm files. Never modify components, pages, or styles.
-
-## Permanent — NEVER Rename Directories With Active Sessions
-- Kills all Claude sessions instantly. Warn user first, ensure handoffs exist.
-
-## UFC — SUB→DEC Fallback Is Optimal (DO NOT OVERRIDE)
-- GSA hybrid gate tested: +0.00u delta. Elite grapplers win by DEC (55%), not SUB (25%).
-- The blanket SUB→DEC fallback captures the dominant outcome and is mathematically optimal.
-
-## UFC — Live Tracker Scoring Gap (LIVE_TRACKER_SCORING_GAP) — 2026-04-07
-- **Pattern**: `scoreFight()` in LiveTrackerPage.jsx only scored ML, Method, and Combo. O/U scoring was completely missing, and method bets had no gating (scored as placed/lost even when no method odds existed). Live-tracked events showed wrong O/U results and phantom method losses.
-- **Root cause**: `scoreFight()` was written before O/U bets were added (v11.20.4) and never updated. Method gating was never implemented in the frontend — the Python `track_results.py` has it but the JS function didn't.
-- **Fix**: Added O/U scoring (Over: round >= 3; Under: round <= 2 with KO/TKO/SUB finish), method gating (check method odds exist before scoring), and `*_placed` flags to `scoreFight()`. Also fixed Scoreboard to show O/U instead of Round.
-- **Rule**: `scoreFight()` in LiveTrackerPage.jsx MUST mirror `track_results.py` scoring logic for ALL bet types. When a new bet type is added to the algorithm, it must be added to BOTH scoring paths.
-- **Applies when**: Any new bet type added, any scoring rule change, any Live Tracker modification.
-
-## UFC — Ghost X Bug Prevention
-- Always use `*_placed` flags, never infer bet placement from `*_correct !== null`.
-- Run `python3 validate_registry_cells.py --strict` after any registry modification.
-
-## UFC — Round Bet Is INDEPENDENT of Method
-- Round and method are separate bets. Fighter loss = ALL prop bets lose. SUB gating stays.
-- See EVENT_TABLE_SPEC.md for canonical scoring rules.
-
-## UFC — Hypothesis Testing Data Format Traps (HYPOTHESIS_DATA_TRAPS) — 2026-04-08
-- **Pattern 1**: `fight_history` in `ufc_backtest_registry.json` uses `'WIN'`/`'LOSS'`, NOT `'W'`/`'L'`. Writing `result not in ('W', 'L')` causes zero activations with no error — silent failure.
-- **Pattern 2**: File imports `from datetime import datetime` — so `datetime` is the CLASS, not the module. `datetime.date.fromisoformat()` fails with AttributeError. Correct pattern: `datetime.strptime(date_str, "%Y-%m-%d").date()`.
-- **Pattern 3**: Baseline from registry totals (e.g. 745.78u) diverges from fresh backtest run (770.51u). Always establish baseline from a FRESH clean run, never from file reads. Incremental registry totals are stale.
-- **Pattern 4**: Backtest overwrites production data files. Must `git restore` ALL data files between coefficient sweep runs or results are confounded.
-- **Applies when**: Writing ANY new function in `UFC_Alg_v4_fast_2026.py`. Check data format with `python3 -c` BEFORE writing code. Check imports at top of file BEFORE using stdlib functions.
-
-## Build — Node 25 Rollup Deadlock
-- Node 25 + Rollup causes hanging builds. Use `NODE_OPTIONS=--max-old-space-size=4096` or downgrade to Node 22.
 
 ## General — Deploy Without GitHub Push (DEPLOY_WITHOUT_PUSH) — 2026-04-01
 - **Pattern**: `wrangler pages deploy dist/` runs successfully, version goes live, but source was never committed/pushed to GitHub. Subsequent sessions see stale code, can't review changes, and source is effectively lost in the minified CDN bundles.
