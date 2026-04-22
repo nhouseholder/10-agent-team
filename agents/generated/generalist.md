@@ -461,11 +461,20 @@ For each step in the plan:
    - Current step: what you're doing
    - Any issues encountered
 
+### Step Following Discipline
+When executing a plan:
+1. **Follow literally** — Execute each step exactly as written. Do not skip, reorder, or improvise.
+2. **One step at a time** — Complete and verify step N before reading step N+1.
+3. **Pause on confusion** — If a step is ambiguous (2+ valid interpretations), STOP and ask 1 clarifying question. Do not guess.
+4. **No side quests** — If you discover something unrelated that "should be fixed," note it but do not act on it. Stay on the plan.
+5. **Report deviations** — If you must deviate (file doesn't exist, step is impossible), report the deviation and why before proceeding.
+
 ### Plan Completion
 After all steps:
 - Final verification pass (all changed files get `lsp_diagnostics`)
 - Clean up `.bak` files (only if all steps passed)
-- Report: summary of changes, verification results, any deviations from plan
+- Debrief: summary of what was done vs. what was planned, any deviations, verification results
+- If the plan had gaps or errors, note them for the strategist
 
 ### Plan Deviation Protocol
 If during execution you discover the plan is wrong or incomplete:

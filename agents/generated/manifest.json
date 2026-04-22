@@ -121,13 +121,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/generalist.md": "e58559d25ee4679a553b4f602db26660f2187cb632a252720fecadf88742320f",
+        "agents/generalist.md": "166d1a52fb057f935dfc4addae704c7063e9fc77063474bed6471675d52e89cf",
         "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
         "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "0f231e7981d986c0dadf976e38da362f9d567756c8c95a10913182b0704c8e15",
-      "outputHash": "6bbe627e65911d208cdaf221616474864a28a5b0597a610401920a07b339623b"
+      "inputsHash": "a97b05e6bdd5c2ca54883bf738a75802b38fdb062cb51dc0781121d7868bb1d1",
+      "outputHash": "ed77583106bbf580c1d44b931193f8b0316b5217a485a3070f83d3baae05e6fe"
     },
     {
       "source": "agents/orchestrator.md",
@@ -175,13 +175,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/strategist.md": "161e5f298d93caae8cd725005f26e54a3754a4c4c90d5b21cdabda77b0bf3d4a",
+        "agents/strategist.md": "3f83cbaab73218e3acc66ce30e98f8eccfc7b616dcf7000c8d441ef0c75e8387",
         "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
         "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "5815f1cd8779c110c343cfee0033937096525bbe66ad581505a95eae020323dd",
-      "outputHash": "f414bca2a1d238fa5f0cd5c064bf0e0af13085423aafa84454c70fca7c09f420"
+      "inputsHash": "146dcfae60006197088d48e5a91a62cece83f84195a0584e36a106ee57ae9aa8",
+      "outputHash": "a0ac4905ba2c361327086870e8b82916c30bda756c680c8f07889d986f0c871d"
     }
   ]
 }

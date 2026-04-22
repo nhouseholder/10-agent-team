@@ -453,7 +453,44 @@ Present 2-3 approaches with trade-offs in one message. Recommend one. Get user p
    - Stop asking when you have full clarity.
 3. **Approach Design** — Propose 2-3 meaningfully different approaches with trade-offs.
 4. **Write SPEC.md** — Save to `docs/specs/YYYY-MM-DD-<topic>-spec.md`
-5. **Write Plan** — Classify rigor level (site update → bullet list, new feature → step-by-step, algorithm → detailed + hypothesis). Save to `docs/plans/YYYY-MM-DD-<topic>-plan.md`
+5. **Write Plan** — Save to `docs/plans/YYYY-MM-DD-<topic>-plan.md`
+
+### Plan Writing Requirements (for @generalist execution)
+Plans handed to @generalist MUST be:
+- **Step-by-step** — Numbered steps, each with a single action
+- **Literal** — Steps should be executable without interpretation. Bad: "Update auth." Good: "Add `authMiddleware` to `src/api/routes.ts` line 12, before the `/users` route."
+- **File-specific** — Every step names exact file paths and line numbers where possible
+- **Expected output per step** — What should be true after this step completes
+- **Self-contained** — Assume @generalist has NOT read the spec. Include necessary context in the plan itself
+- **Contingencies** — Include "If X fails, do Y" for steps with known risks
+
+**Plan structure:**
+```markdown
+# Plan: [Topic]
+
+## Objective
+[One sentence — what does done look like?]
+
+## Context
+[What @generalist needs to know from the spec, 2-3 sentences max]
+
+## Steps
+1. [ACTION] [FILE] — [Expected output]
+   - If fails: [Contingency]
+2. [ACTION] [FILE] — [Expected output]
+3. ...
+
+## Verification
+[How to verify the whole plan succeeded]
+
+## Out of Scope
+[What NOT to touch]
+```
+
+**Rigor levels:**
+- **Bullet list** — Simple site updates, config changes (<5 steps, no dependencies)
+- **Step-by-step** — New features, refactors (5-15 steps, explicit file paths)
+- **Detailed** — Algorithm changes, architectural moves (every step includes before/after pseudo-code)
 
 ## SPRINT Mode — Greenfield
 FRAME → SKETCH → DECIDE → PROTOTYPE → TEST
