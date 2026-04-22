@@ -161,13 +161,13 @@ The 3 files are:
 
 All operational value is already in engram. The ChromaDB indices (~2.8MB) contain no user data.
 
-### 4.2 Stale `~/ProjectsHQ/8-agent-team/` Copy
+### 4.2 Stale `~/ProjectsHQ/8-agent-team/` Copy (ARCHIVED)
 
-**Recommendation: Archive with marker.**
+**Status: Already archived.** The ghost repo at `~/ProjectsHQ/8-agent-team/` has been moved to `~/ProjectsHQ/ARCHIVED-8-agent-team-*/` with a `README-ARCHIVED.md` marker.
 
-This is a ghost repo (old prompts with mempalace write instructions). It is NOT the live system (`~/8-agent-team/`). Risk: future agents might discover and use stale instructions.
+This was a ghost repo (old prompts with mempalace write instructions). It is NOT the live system (`~/8-agent-team/`). Risk: future agents might discover and use stale instructions.
 
-Action:
+Archive action (already completed):
 ```bash
 mv ~/ProjectsHQ/8-agent-team ~/ProjectsHQ/ARCHIVED-8-agent-team-$(date +%Y%m%d)
 touch ~/ProjectsHQ/ARCHIVED-8-agent-team-*/README-ARCHIVED.md

@@ -320,8 +320,8 @@
 **Verify:** `grep -n resolve_ou_bet *.py` — expect 3+ matches across UFC_Alg, fix_registry, ou_contract itself. If you only touched one file, you did not ship the gate.
 
 ## General — Path Drift in Agent Handoffs (AGENT_HANDOFF_PATH_DRIFT) — 2026-04-22
-- **Pattern:** Agent creates file at `~/8-agent-team/docs/specs/2026-04-22-ltm-consolidation-spec.md`. Later agent (or same agent in new context) searches `~/docs/specs/...` or `~/Projects/8-agent-team/docs/specs/...` — both wrong. Results in `File not found`, wasted tool calls, and user-visible inefficiency. Ghost repo at `~/ProjectsHQ/8-agent-team/` (now archived) exacerbated confusion.
-- **Why it happened:** (a) Agent assumed repo location without verification. (b) Stale ghost repo with similar structure existed at `~/ProjectsHQ/8-agent-team/`. (c) Handoff did not include explicit canonical path verification. (d) No `ls` preflight before `read`.
+- **Pattern:** Agent creates file at `~/8-agent-team/docs/specs/2026-04-22-ltm-consolidation-spec.md`. Later agent (or same agent in new context) searches `~/docs/specs/...` or `~/Projects/8-agent-team/docs/specs/...` — both wrong. Results in `File not found`, wasted tool calls, and user-visible inefficiency. Ghost repo at `~/ProjectsHQ/8-agent-team/` (now archived as `~/ProjectsHQ/ARCHIVED-8-agent-team-*/`) exacerbated confusion.
+- **Why it happened:** (a) Agent assumed repo location without verification. (b) Stale ghost repo with similar structure existed at `~/ProjectsHQ/8-agent-team/` (since archived). (c) Handoff did not include explicit canonical path verification. (d) No `ls` preflight before `read`.
 - **What TO do (working design, 2026-04-22):**
   1. **Canonical path enforcement:** Live repo is ALWAYS `~/8-agent-team/`. Ghost repo is `~/ProjectsHQ/ARCHIVED-8-agent-team-*/` — never search it.
   2. **Preflight verification:** Before any `read`, run `ls <dir>` or `test -f <file>` to confirm path exists. Do not assume.
