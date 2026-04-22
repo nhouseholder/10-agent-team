@@ -103,13 +103,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/explorer.md": "fce9c7fe984ff70feaa63ca24627bfb7fa7c94b661e5da93513a692d29130c48",
+        "agents/explorer.md": "046eb245cd090aabf45227c11b14d4768eb1f34e074e056f075f986c97c36555",
         "_shared/cognitive-kernel.md": "87bbf7779989722155b1473ed5fd6c7992ef30774d05c8f80a24b876efdd53dd",
         "_shared/memory-systems.md": "af1084b6d3e371459fb1971cbcb56248eb959441f19b3fe11a7aa6d9a6506a63",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "ffacd46aca48a5aa8d1b488870a0804da358395617f3db709bdbfe75c80898cf",
-      "outputHash": "c0e91b09135d0cc14188716255e66a3382518c406a600755883cba878279dd2d"
+      "inputsHash": "46aa56a9914cd55caf4b2c5a519adbc0c66d5c12072e9b52f26a30014d857eaf",
+      "outputHash": "b4ae06b7797c433497e1a22937ebe02771e5ea22c4d7c6f31401d3b8e4ee4da2"
     },
     {
       "source": "agents/generalist.md",

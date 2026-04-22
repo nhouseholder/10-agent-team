@@ -1,3 +1,8 @@
 # Runtime mirrors created by local worktree flows
 .claude/worktrees/
 .worktrees/
+
+# Explorer artifacts (regenerated on demand)
+.explorer/codebase-map.json
+.explorer/graph.sqlite
+.explorer/impact-radius.json
