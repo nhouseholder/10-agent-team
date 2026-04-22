@@ -129,14 +129,14 @@ Phase 5: CRITIQUE    — Nielsen's heuristics /40 + persona testing
 - Fintech: stripe, coinbase, wise, revolut, kraken
 - Enterprise: apple, spotify, uber, airbnb, pinterest, spacex, nvidia, ibm, superhuman
 
-Location: `${HOME}/.claude/skills/website-design-agent/design-refs/<brand>/DESIGN.md`
+Location: `${HOME}/.opencode/skills/website-design-agent/design-refs/<brand>/DESIGN.md`
 
 **Expert References (read before implementing):**
-- Typography: `${HOME}/.claude/skills/website-design-agent/reference/typography.md`
-- Color & Contrast: `${HOME}/.claude/skills/website-design-agent/reference/color-and-contrast.md`
-- Motion Design: `${HOME}/.claude/skills/website-design-agent/reference/motion-design.md`
-- Spatial Design: `${HOME}/.claude/skills/website-design-agent/reference/spatial-design.md`
-- Interaction Design: `${HOME}/.claude/skills/website-design-agent/reference/interaction-design.md`
+- Typography: `${HOME}/.opencode/skills/website-design-agent/reference/typography.md`
+- Color & Contrast: `${HOME}/.opencode/skills/website-design-agent/reference/color-and-contrast.md`
+- Motion Design: `${HOME}/.opencode/skills/website-design-agent/reference/motion-design.md`
+- Spatial Design: `${HOME}/.opencode/skills/website-design-agent/reference/spatial-design.md`
+- Interaction Design: `${HOME}/.opencode/skills/website-design-agent/reference/interaction-design.md`
 
 **Read the reference before implementing. Don't apply from memory — the specifics matter.**
 

@@ -322,7 +322,7 @@
 
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
-| **Auto-distill removal loses unsaved context** | Medium | Medium | Pre-compact hook already saves checkpoints to `~/.claude/projects/<project>/memory/`; agents can still manual-save before session end |
+| **Auto-distill removal loses unsaved context** | Medium | Medium | Pre-compact hook already saves checkpoints to `~/.opencode/projects/<project>/memory/`; agents can still manual-save before session end |
 | **Validation rejects legitimate saves** | Low | Medium | `manual` type has no topic_key requirement; warnings (not rejections) for missing `**` headers; monitor rejection rate |
 | **Project map becomes stale** | Medium | Low | Map is JSON — easy to update; `brain-inspect.sh` shows unmapped projects; monthly review |
 | **Cleanup script accidentally deletes valid data** | Low | High | Dry-run by default; only targets exact title match "Session summary (auto-distilled)"; soft-delete (recoverable) |

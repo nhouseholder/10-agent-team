@@ -31,7 +31,7 @@ The single planning skill. Replaces spec-interview, brainstorming, writing-plans
 pwd && git remote get-url origin 2>/dev/null
 # Load existing specs, plans, handoffs
 ls docs/specs/ docs/plans/ handoffs/ 2>/dev/null
-# Read CLAUDE.md, AGENTS.md, README if they exist
+# Read OPENCODE.md, AGENTS.md, README if they exist
 ```
 
 Check what's already been decided. Never re-ask covered ground.

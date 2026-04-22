@@ -5,7 +5,7 @@
 > Last updated: 2026-04-22
 >
 > **SYSTEM BOUNDARY:** This file is for the **OpenCode 8-agent-team system** ONLY.
-> For Claude Code anti-patterns, see the separate system at `~/.claude/anti-patterns.md`.
+> For Claude Code anti-patterns, see the separate system at `~/.opencode/anti-patterns.md`.
 > Never sync or copy between these two systems.
 
 ## UFC — Scraper Display-Text Anchor Collides on Duplicate Listings (BFO_DISPLAY_TEXT_FIRST_MATCH) — 2026-04-16
@@ -24,24 +24,24 @@
   - A single `over_price_blocked` for both missing-data and out-of-gate cases. Always split: missing-data is a scraper bug, out-of-gate is intended behavior.
   - Returning a single best-match event link when BFO might split a card across pages. Always return the list.
 - **Files**: `scrape_ou_odds.py`, `ou_contract.py`, `webapp/frontend/src/lib/pickContract.js`, `UFC_Alg_v4_fast_2026.py` (`_dk_extract_total_rounds`, `_persist_ou_to_cache`, retry tuple at the live-prediction O/U path).
-- **Verification**: See plan `~/.claude/plans/lexical-churning-engelbart.md`. Live confirmation 2026-04-16: Burns vs. Malott card cache went from 7 prelim fights to 13 fights total; Jasudavicius/Silva and Young/Moises now show real Over 2.5 bets at -310 and -180 respectively (commit `3a16a72`).
+- **Verification**: See plan `~/.opencode/plans/lexical-churning-engelbart.md`. Live confirmation 2026-04-16: Burns vs. Malott card cache went from 7 prelim fights to 13 fights total; Jasudavicius/Silva and Young/Moises now show real Over 2.5 bets at -310 and -180 respectively (commit `3a16a72`).
 
 
 ## General — Plan Files Crossed Projects Because PLAN_DIR Is Global (PLAN_FILE_CROSS_PROJECT_CONFUSION) — 2026-04-14
-- **Pattern**: User approved `imperative-bubbling-lake.md` in mmalogic, but `plan-execution-guard.py` reported `reactive-spinning-plum.md` (Diamond Predictions) as the pending plan. Cause: every plan-consuming hook used `glob.glob(~/.claude/plans/*.md)` + latest-mtime, which crosses project boundaries. The `go` handler then `os.remove`'d "all other plans" — silent data loss of approved plans from other projects. The 2-hour stale cleanup in both `plan-mode-enforcer.py` and `plan-execution-guard.py` did the same thing every session start.
-- **Why it kept happening**: The harness forces plan writes into `~/.claude/plans/<slug>.md` with a random slug and no project metadata. Hooks had no way to tell which project a plan belonged to, so they treated the directory as a single global bucket. cwd checks existed only on the guard sidecar, not on plan discovery.
+- **Pattern**: User approved `imperative-bubbling-lake.md` in mmalogic, but `plan-execution-guard.py` reported `reactive-spinning-plum.md` (Diamond Predictions) as the pending plan. Cause: every plan-consuming hook used `glob.glob(~/.opencode/plans/*.md)` + latest-mtime, which crosses project boundaries. The `go` handler then `os.remove`'d "all other plans" — silent data loss of approved plans from other projects. The 2-hour stale cleanup in both `plan-mode-enforcer.py` and `plan-execution-guard.py` did the same thing every session start.
+- **Why it kept happening**: The harness forces plan writes into `~/.opencode/plans/<slug>.md` with a random slug and no project metadata. Hooks had no way to tell which project a plan belonged to, so they treated the directory as a single global bucket. cwd checks existed only on the guard sidecar, not on plan discovery.
 - **What TO do instead (working design, 2026-04-14)**:
-  1. `PostToolUse:Write|Edit` → `plan-relocate.py` moves the real file to `<project-root>/.plans/<YYYY-MM-DD>_<slug>.md` and replaces `~/.claude/plans/<slug>.md` with a symlink so the harness-visible path still resolves.
+  1. `PostToolUse:Write|Edit` → `plan-relocate.py` moves the real file to `<project-root>/.plans/<YYYY-MM-DD>_<slug>.md` and replaces `~/.opencode/plans/<slug>.md` with a symlink so the harness-visible path still resolves.
   2. All plan-consuming hooks import `_plan_utils.find_project_plans()` which returns ONLY the current project's plans (scoped `.plans/` + symlinks whose realpath is inside the project).
   3. Stale cleanup in every hook uses `_plan_utils.clean_stale_project_plans()` — never touches plans outside the current project.
   4. Guard sidecar stores cwd AND the real plan path (two-line format) so downstream hooks can verify the exact file being guarded.
-  5. `go` cleanup iterates project-scoped plans only, never `glob(~/.claude/plans/*.md)`.
+  5. `go` cleanup iterates project-scoped plans only, never `glob(~/.opencode/plans/*.md)`.
 - **DO NOT re-add**:
   - `glob.glob(os.path.join(PLAN_DIR, "*.md"))` followed by `sorted(..., key=getmtime)` in any hook. Use `_plan_utils.find_project_plans()` instead.
   - `for old_plan in glob.glob(...): os.remove(old_plan)` in stale-cleanup or go-cleanup paths. Scope all deletes to the current project.
-  - Treating `~/.claude/plans/` as the source of truth for the real file. It's a harness-compat symlink directory only.
-- **Files**: `~/.claude/hooks/_plan_utils.py` (new), `~/.claude/hooks/plan-relocate.py` (new), `~/.claude/hooks/plan-execution-guard.py`, `~/.claude/hooks/plan-mode-enforcer.py`, `~/.claude/hooks/plan-write-guard-activator.py`, `~/.claude/settings.json` (PostToolUse:Write|Edit registration).
-- **Verification**: See `Verification` section in `~/.claude/plans/purrfect-growing-neumann.md` (approved + executed 2026-04-14).
+  - Treating `~/.opencode/plans/` as the source of truth for the real file. It's a harness-compat symlink directory only.
+- **Files**: `~/.opencode/hooks/_plan_utils.py` (new), `~/.opencode/hooks/plan-relocate.py` (new), `~/.opencode/hooks/plan-execution-guard.py`, `~/.opencode/hooks/plan-mode-enforcer.py`, `~/.opencode/hooks/plan-write-guard-activator.py`, `~/.opencode/settings.json` (PostToolUse:Write|Edit registration).
+- **Verification**: See `Verification` section in `~/.opencode/plans/purrfect-growing-neumann.md` (approved + executed 2026-04-14).
 
 ## General — Plan Pipeline Must Use ACTIVE_PLAN Pointer, Not Mtime (PLAN_PIPELINE_DETERMINISTIC) — 2026-04-14
 - **Pattern**: Plan-execution pipeline (Opus writes plan → user approves → user types `go` → Sonnet executes) used "newest plan by mtime" to resolve THE plan. With multiple concurrent plans, equal mtimes, or relocations modifying mtime, the wrong plan could be picked. Filenames were also opaque random slugs (`purrfect-growing-neumann.md`), so user couldn't tell which plan was current at a glance.
@@ -54,21 +54,21 @@
   - Mtime-only resolution in `go` handler — always check ACTIVE_PLAN first.
   - Random-slug filenames as the only naming source — always extract topic from content.
   - Reliance on Claude remembering to say "Switch to Sonnet" — Stop hook enforces it.
-- **Files**: `~/.claude/hooks/_plan_utils.py` (active-pointer helpers, topic extractor), `~/.claude/hooks/plan-relocate.py` (topic naming, sets pointer), `~/.claude/hooks/plan-mode-enforcer.py` (reads pointer in `go`), `~/.claude/hooks/response-format-guard.py` (enforces hand-off message), `~/.claude/hooks/plan-pending-reminder.py` (NEW, SessionStart reminder).
+- **Files**: `~/.opencode/hooks/_plan_utils.py` (active-pointer helpers, topic extractor), `~/.opencode/hooks/plan-relocate.py` (topic naming, sets pointer), `~/.opencode/hooks/plan-mode-enforcer.py` (reads pointer in `go`), `~/.opencode/hooks/response-format-guard.py` (enforces hand-off message), `~/.opencode/hooks/plan-pending-reminder.py` (NEW, SessionStart reminder).
 
 ## General — Absence From settings.json Does Not Mean Unregistered (HOOK_REGISTRY_INCOMPLETE) — 2026-04-11
-- **Pattern**: Deleted `copilot-learning-log.py` from `~/.claude/hooks/` after confirming it had no entry in `~/.claude/settings.json`. Assumed "not in settings.json = dead code." File was actually registered in GitHub Copilot Chat's hook system (PostToolUse + UserPromptSubmit), which uses a SEPARATE config from Claude Code. Deleting it immediately broke Copilot Chat in VS Code.
-- **Why this fails**: Claude Code (`~/.claude/settings.json`) and GitHub Copilot Chat (VS Code extension) both support `~/.claude/hooks/` but maintain **independent** hook registries. A file can be active in one system while absent from the other. There may be additional consumers (other editors, scripts, cron jobs) that reference files in this directory.
-- **What TO do instead**: Before deleting any file in `~/.claude/hooks/`: (1) Check `~/.claude/settings.json` for Claude Code registration. (2) Check VS Code Copilot Chat hooks config. (3) `grep -r "$(basename $file)" ~/.claude/ ~/.config/ ~/Library/Application\ Support/ 2>/dev/null` to catch other references. Only delete after confirming 0 consumers across ALL hook systems.
-- **Recovery**: Restore from local git history: `git show HEAD~1:hooks/filename.py > ~/.claude/hooks/filename.py`
+- **Pattern**: Deleted `copilot-learning-log.py` from `~/.opencode/hooks/` after confirming it had no entry in `~/.opencode/settings.json`. Assumed "not in settings.json = dead code." File was actually registered in GitHub Copilot Chat's hook system (PostToolUse + UserPromptSubmit), which uses a SEPARATE config from Claude Code. Deleting it immediately broke Copilot Chat in VS Code.
+- **Why this fails**: Claude Code (`~/.opencode/settings.json`) and GitHub Copilot Chat (VS Code extension) both support `~/.opencode/hooks/` but maintain **independent** hook registries. A file can be active in one system while absent from the other. There may be additional consumers (other editors, scripts, cron jobs) that reference files in this directory.
+- **What TO do instead**: Before deleting any file in `~/.opencode/hooks/`: (1) Check `~/.opencode/settings.json` for Claude Code registration. (2) Check VS Code Copilot Chat hooks config. (3) `grep -r "$(basename $file)" ~/.opencode/ ~/.config/ ~/Library/Application\ Support/ 2>/dev/null` to catch other references. Only delete after confirming 0 consumers across ALL hook systems.
+- **Recovery**: Restore from local git history: `git show HEAD~1:hooks/filename.py > ~/.opencode/hooks/filename.py`
 
 ## General — Model Auto-Switch From Hook Is Impossible (PLAN_AUTO_SWITCH_IMPOSSIBLE) — 2026-04-11
 - **Pattern**: Tried 10 times across ~2 weeks to auto-switch the running Claude Code session from Opus → Sonnet via a hook (`UserPromptSubmit`, `Stop`, `PreToolUse:ExitPlanMode`) right after plan mode exits, so the user wouldn't have to manually click the dropdown. Every attempt silently failed — the session kept running on Opus regardless of what the hook did.
-- **Why it is architecturally impossible**: (1) Claude Code Desktop/Web locks the model at session startup; the running session's model is NOT re-read from any file. (2) Writes to `~/.claude/settings.json` "model" key are recognized only for the **next** session — never the running one. (3) There is no public API/IPC to force a live model change mid-session. (4) `get_current_model()` that reads `settings.json` lies: the file says what's persisted, not what's actually running. Desktop can silently override Sonnet → Opus, so a hook that "confirms the switch happened" by reading settings.json always returns true and removes the guard, letting Opus execute freely. That was the specific bug that cost the most cycles.
-- **Secondary root cause (same saga)**: Substring-matching "execute plan" / "go" in prose false-fired on diagnostic text like "why does execute plans fail" — and the guard was being written on conversational plan-intent prose, which then bled across projects via the global `~/.claude/.plan-guard-active` file.
+- **Why it is architecturally impossible**: (1) Claude Code Desktop/Web locks the model at session startup; the running session's model is NOT re-read from any file. (2) Writes to `~/.opencode/settings.json` "model" key are recognized only for the **next** session — never the running one. (3) There is no public API/IPC to force a live model change mid-session. (4) `get_current_model()` that reads `settings.json` lies: the file says what's persisted, not what's actually running. Desktop can silently override Sonnet → Opus, so a hook that "confirms the switch happened" by reading settings.json always returns true and removes the guard, letting Opus execute freely. That was the specific bug that cost the most cycles.
+- **Secondary root cause (same saga)**: Substring-matching "execute plan" / "go" in prose false-fired on diagnostic text like "why does execute plans fail" — and the guard was being written on conversational plan-intent prose, which then bled across projects via the global `~/.opencode/.plan-guard-active` file.
 - **What TO do instead** (the current working design, 2026-04-10):
-  1. Write the plan to disk (`~/.claude/plans/*.md`).
-  2. A cwd-scoped guard (`~/.claude/.plan-guard-active` with cwd stored as content) is created by `PreToolUse:ExitPlanMode` (formal plan mode) OR by `PostToolUse:Write` on any file inside `~/.claude/plans/` (informal prose plan path — added 2026-04-11).
+  1. Write the plan to disk (`~/.opencode/plans/*.md`).
+  2. A cwd-scoped guard (`~/.opencode/.plan-guard-active` with cwd stored as content) is created by `PreToolUse:ExitPlanMode` (formal plan mode) OR by `PostToolUse:Write` on any file inside `~/.opencode/plans/` (informal prose plan path — added 2026-04-11).
   3. `plan-execution-guard.py` on `PreToolUse:Edit|Write` blocks all non-plan-file edits while the guard exists.
   4. Tell the user EXACTLY (one line): *"Plan saved. Switch to Sonnet, then type: go"*. Do not spell out the dropdown/CLI steps and do not claim to know which model is running.
   5. On `go` (start-anchored regex + length < 80 char filter to avoid prose false-match), remove the guard and inject the plan path + execution instructions. Trust the user — hooks CANNOT verify the switch actually happened.
@@ -77,9 +77,9 @@
   - Writes to `settings.json` "model" key from any hook — only affects next session.
   - Any text that claims to know which model is running.
   - Substring-match of "execute plan", "go", or similar in prose. Use start-anchored regex + short-prompt length filter.
-  - Guard creation on conversational plan-intent prose (`detect_plan_intent`). Only real tool calls (`ExitPlanMode`) or actual writes to `~/.claude/plans/` should create the guard.
+  - Guard creation on conversational plan-intent prose (`detect_plan_intent`). Only real tool calls (`ExitPlanMode`) or actual writes to `~/.opencode/plans/` should create the guard.
   - Global, non-project-scoped guard files. Always store cwd in the guard content and check on read.
-- **Files**: `~/.claude/hooks/plan-mode-enforcer.py`, `~/.claude/hooks/plan-execution-guard.py`, `~/.claude/hooks/plan-write-guard-activator.py`, `~/.claude/hooks/plan-exit-model-switch.ARCHIVED.py` (10-commit graveyard).
+- **Files**: `~/.opencode/hooks/plan-mode-enforcer.py`, `~/.opencode/hooks/plan-execution-guard.py`, `~/.opencode/hooks/plan-write-guard-activator.py`, `~/.opencode/hooks/plan-exit-model-switch.ARCHIVED.py` (10-commit graveyard).
 
 ## UFC — Parlay With Correlated Same-Fighter Props (PARLAY_SAME_FIGHTER_CORRELATED) — 2026-04-10
 - **Pattern**: Parlay builder selects two props on the SAME fighter in the SAME fight as legs of one parlay (e.g., "Fighter A by KO" + "Fighter A KO R1"). No sportsbook on any platform allows this — correlated same-fighter props are rejected at the slip.
@@ -423,5 +423,5 @@
   - Use relative paths (`docs/specs/...`) in handoffs. Always absolute.
   - Search archived repos without checking for `README-ARCHIVED.md` marker first.
   - Skip `ls` preflight before `read` on files created by prior agents.
-- **Files:** `~/8-agent-team/agents/orchestrator.md` (handoff protocol), `~/.claude/anti-patterns.md` (this entry).
+- **Files:** `~/8-agent-team/agents/orchestrator.md` (handoff protocol), `~/.opencode/anti-patterns.md` (this entry).
 - **Verification:** `ls ~/8-agent-team/docs/specs/` should show `2026-04-22-ltm-consolidation-spec.md`. `ls ~/ProjectsHQ/ARCHIVED-8-agent-team-*/` should show `README-ARCHIVED.md`.

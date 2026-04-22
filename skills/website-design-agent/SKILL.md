@@ -48,7 +48,7 @@ Every design must feel genuinely crafted for its specific context.
 If the user references a specific brand/style or you need design inspiration, check:
 
 ```
-~/.claude/skills/website-design-agent/design-refs/<brand>/DESIGN.md
+~/.opencode/skills/website-design-agent/design-refs/<brand>/DESIGN.md
 ```
 
 **58 brands available** — exact color palettes, typography specs, spacing systems, component patterns:
@@ -70,7 +70,7 @@ If the user references a specific brand/style or you need design inspiration, ch
 Generate comprehensive design recommendations from the searchable database:
 
 ```bash
-python3 ~/.claude/skills/website-design-agent/scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"]
+python3 ~/.opencode/skills/website-design-agent/scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"]
 ```
 
 **Domain searches** for specific needs:
@@ -107,7 +107,7 @@ Deep-dive reference docs with expert-level specifics — exact values, not gener
 Generate complete design system tokens from a brand color:
 
 ```bash
-python3 ~/.claude/skills/website-design-agent/scripts/design_token_generator.py [brand_color] [style] [format]
+python3 ~/.opencode/skills/website-design-agent/scripts/design_token_generator.py [brand_color] [style] [format]
 ```
 - Styles: modern, classic, playful
 - Formats: json, css, scss
@@ -138,7 +138,7 @@ When `framer-motion` is installed or the project is React-based, use these:
 ### 21st.dev Component Library (on-demand)
 Premium UI building blocks — hero sections, feature grids, pricing tables, testimonials, CTAs, and more. **Not an always-on MCP** — install per-project when building fresh UIs:
 ```bash
-claude mcp add magic -- npx -y @21st-dev/magic@latest
+opencode mcp add magic -- npx -y @21st-dev/magic@latest
 ```
 Use when: starting a new site/landing page and need polished component scaffolding faster than building from scratch. Don't use for: minor updates to existing sites (adds unnecessary MCP overhead). After the build session, the MCP can be removed.
 

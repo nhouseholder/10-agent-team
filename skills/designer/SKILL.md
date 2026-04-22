@@ -88,7 +88,7 @@ Every design must feel genuinely crafted for its specific context.
 If the user references a specific brand/style or you need design inspiration, check:
 
 ```
-~/.claude/skills/website-design-agent/design-refs/<brand>/DESIGN.md
+~/.opencode/skills/website-design-agent/design-refs/<brand>/DESIGN.md
 ```
 
 **58 brands available** — exact color palettes, typography specs, spacing systems, component patterns:
@@ -110,7 +110,7 @@ If the user references a specific brand/style or you need design inspiration, ch
 Generate comprehensive design recommendations from the searchable database:
 
 ```bash
-python3 ~/.claude/skills/website-design-agent/scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"]
+python3 ~/.opencode/skills/website-design-agent/scripts/search.py "<product_type> <industry> <keywords>" --design-system [-p "Project Name"]
 ```
 
 **Domain searches** for specific needs:
@@ -131,14 +131,14 @@ Deep-dive reference docs with expert-level specifics — exact values, not gener
 
 | Reference | When to Read | Location |
 |-----------|-------------|----------|
-| Typography | Font selection, pairing, hierarchy, modular scales | `~/.claude/skills/website-design-agent/reference/typography.md` |
-| Color & Contrast | Palette creation, OKLCH, theming, dark mode | `~/.claude/skills/website-design-agent/reference/color-and-contrast.md` |
-| Motion Design | Animations, 100/300/500ms rule, easing curves | `~/.claude/skills/website-design-agent/reference/motion-design.md` |
-| Spatial Design | Layout, 4pt grid, spacing, container queries | `~/.claude/skills/website-design-agent/reference/spatial-design.md` |
-| Interaction Design | 8 states per element, focus, dialog/popover API | `~/.claude/skills/website-design-agent/reference/interaction-design.md` |
-| Responsive Design | Content-driven breakpoints, pointer queries | `~/.claude/skills/website-design-agent/reference/responsive-design.md` |
-| UX Writing | Microcopy, error formulas, empty states | `~/.claude/skills/website-design-agent/reference/ux-writing.md` |
-| Theme Library | Pre-built theme combinations | `~/.claude/skills/website-design-agent/reference/theme-library.md` |
+| Typography | Font selection, pairing, hierarchy, modular scales | `~/.opencode/skills/website-design-agent/reference/typography.md` |
+| Color & Contrast | Palette creation, OKLCH, theming, dark mode | `~/.opencode/skills/website-design-agent/reference/color-and-contrast.md` |
+| Motion Design | Animations, 100/300/500ms rule, easing curves | `~/.opencode/skills/website-design-agent/reference/motion-design.md` |
+| Spatial Design | Layout, 4pt grid, spacing, container queries | `~/.opencode/skills/website-design-agent/reference/spatial-design.md` |
+| Interaction Design | 8 states per element, focus, dialog/popover API | `~/.opencode/skills/website-design-agent/reference/interaction-design.md` |
+| Responsive Design | Content-driven breakpoints, pointer queries | `~/.opencode/skills/website-design-agent/reference/responsive-design.md` |
+| UX Writing | Microcopy, error formulas, empty states | `~/.opencode/skills/website-design-agent/reference/ux-writing.md` |
+| Theme Library | Pre-built theme combinations | `~/.opencode/skills/website-design-agent/reference/theme-library.md` |
 
 **Read the reference before implementing. Don't apply from memory — the specifics matter.**
 
@@ -147,7 +147,7 @@ Deep-dive reference docs with expert-level specifics — exact values, not gener
 Generate complete design system tokens from a brand color:
 
 ```bash
-python3 ~/.claude/skills/website-design-agent/scripts/design_token_generator.py [brand_color] [style] [format]
+python3 ~/.opencode/skills/website-design-agent/scripts/design_token_generator.py [brand_color] [style] [format]
 ```
 - Styles: modern, classic, playful
 - Formats: json, css, scss
@@ -265,7 +265,7 @@ Scan output for these 10 AI-generated fingerprints. **3+ matches = SLOP. Redesig
 
 ### 5A: Nielsen's Heuristics (/40)
 
-Score each 0-4 (read `~/.claude/skills/website-design-agent/critique/heuristics-scoring.md` for full guide):
+Score each 0-4 (read `~/.opencode/skills/website-design-agent/critique/heuristics-scoring.md` for full guide):
 
 1. Visibility of System Status
 2. Match Between System and Real World
@@ -288,13 +288,13 @@ Score each 0-4 (read `~/.claude/skills/website-design-agent/critique/heuristics-
 
 ### 5B: Cognitive Load (8-item checklist)
 
-Read `~/.claude/skills/website-design-agent/critique/cognitive-load.md`. Check: single focus, chunking (4 items max), grouping, visual hierarchy, one decision at a time, minimal choices (4 max), no cross-screen memory, progressive disclosure.
+Read `~/.opencode/skills/website-design-agent/critique/cognitive-load.md`. Check: single focus, chunking (4 items max), grouping, visual hierarchy, one decision at a time, minimal choices (4 max), no cross-screen memory, progressive disclosure.
 
 4+ failures = high cognitive load = critical fix.
 
 ### 5C: Persona Testing
 
-Read `~/.claude/skills/website-design-agent/critique/personas.md`. Pick 2-3 relevant personas:
+Read `~/.opencode/skills/website-design-agent/critique/personas.md`. Pick 2-3 relevant personas:
 
 | Persona | Tests For |
 |---------|-----------|

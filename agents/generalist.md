@@ -92,7 +92,7 @@ For tasks without a formal plan:
 
 **Phase 1: CONTEXT** (always)
 - Read relevant files before editing
-- Check project conventions (AGENTS.md, CLAUDE.md, existing patterns)
+- Check project conventions (AGENTS.md, OPENCODE.md, existing patterns)
 - Read `.explorer/codebase-map.json` v2 if available — check `risk_score` and `page_rank` for files you plan to modify
 
 **Phase 2: EXPLORE** (if needed)
@@ -157,7 +157,7 @@ engram_mem_save(
 ```
 
 **Step 2: Write ledger file on disk** (backup, human-readable)
-Write to `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md`:
+Write to `~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md`:
 - What we were doing (1-2 sentences)
 - Key numbers/data computed this session
 - Decisions made (with rationale)

@@ -183,7 +183,7 @@ This is the most critical save. Compaction is unpredictable and system-triggered
    topic_key: "session/[project]"
    ```
 
-2. Checkpoint file on disk (existing protocol) — `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md`
+2. Checkpoint file on disk (existing protocol) — `~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md`
 
 **Why both:** engram survives across sessions and is machine-searchable. The checkpoint file is a human-readable backup that the generalist can re-read post-compaction.
 

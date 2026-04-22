@@ -26,7 +26,7 @@
 - Chain exceeded max depth (4)
 
 **Fix:**
-1. Check the session checkpoint file for chain state: `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md`
+1. Check the session checkpoint file for chain state: `~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md`
 2. Resume manually: "Continue the chain from [last completed step]"
 3. If agent failed: try with clearer instructions or route to different agent
 

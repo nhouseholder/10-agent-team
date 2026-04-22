@@ -42,7 +42,7 @@ git log --oneline -5
 pwd
 ```
 
-Update `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md`:
+Update `~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md`:
 
 ```markdown
 # Pre-Compact Checkpoint — [Project] — [Date Time]
@@ -71,7 +71,7 @@ Update `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md`:
 
 **Before EVERY compaction, save a checkpoint file.** This is the difference between safe compaction and lossy compaction.
 
-Write to `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` (overwritten each time):
+Write to `~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md` (overwritten each time):
 
 ```markdown
 # Pre-Compact Checkpoint — <timestamp>
@@ -126,7 +126,7 @@ When context approaches limits:
 
 When the decision table above says HANDOFF:
 
-1. **Write** `handoff.md` in project memory (`~/.claude/projects/<project>/memory/handoff.md`):
+1. **Write** `handoff.md` in project memory (`~/.opencode/projects/<project>/memory/handoff.md`):
    ```markdown
    # Handoff — [Project] — [Date Time]
 
@@ -158,14 +158,14 @@ When the decision table above says HANDOFF:
 ### On Session Start:
 ```bash
 # Read the current session checkpoint if it exists
-cat ~/.claude/projects/<project>/memory/pre_compact_checkpoint.md 2>/dev/null
+cat ~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md 2>/dev/null
 # Read project CLAUDE.md, AGENTS.md
 # Read recent handoffs
 git log --oneline -10
 ```
 
 ### On Session End:
-1. Update `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` with current state
+1. Update `~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md` with current state
 2. Commit ledger changes
 3. Output: "Checkpoint saved. Next session will pick up from: [path]"
 
@@ -184,14 +184,14 @@ Memory saves are batched with compaction events — not saved after every task.
 
 ### Project-Level Memory (disk files)
 Each project maintains:
-- `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` — latest session continuity file
-- `~/.claude/projects/<project>/memory/handoff.md` — end-of-session summary when compaction is no longer appropriate
+- `~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md` — latest session continuity file
+- `~/.opencode/projects/<project>/memory/handoff.md` — end-of-session summary when compaction is no longer appropriate
 - `docs/specs/` — design decisions
 - `docs/plans/` — implementation plans
 
 ### Global Memory
-- `~/.claude/anti-patterns.md` — recurring mistakes across all projects
-- `~/.claude/projects/*/memory/MEMORY.md` — project-specific long-term memory
+- `~/.opencode/anti-patterns.md` — recurring mistakes across all projects
+- `~/.opencode/projects/*/memory/MEMORY.md` — project-specific long-term memory
 
 ## Compaction Rules
 
@@ -224,6 +224,6 @@ Each project maintains:
 |----------|------|
 | CLAUDE.md instructions | Intermediate reasoning and analysis |
 | TodoWrite task list | File contents you previously read |
-| Memory files (`~/.claude/memory/`) | Multi-step conversation context |
+| Memory files (`~/.opencode/memory/`) | Multi-step conversation context |
 | Git state (commits, branches) | Tool call history and counts |
 | Files on disk | Nuanced user preferences stated verbally |

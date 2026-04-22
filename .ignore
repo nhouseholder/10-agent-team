@@ -1,2 +1,2 @@
 # Exclude runtime worktree mirrors from local search tools
-.claude/worktrees/
+.opencode/worktrees/

@@ -26,7 +26,7 @@
 | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|
 | **Semantic search gap** — mempalace offered HNSW vector search; engram uses FTS5 | Low | Medium | Engram's FTS5 + scoring (recency × frequency × confidence) has proven sufficient. If semantic search becomes needed, add a lightweight vector extension to engram rather than maintaining a second store. |
-| **Verbatim recall loss** — mempalace was designated for exact conversation replay | Low | Low | The 3 drawers contain only test data. All operational verbatim content lives in checkpoint files (`~/.claude/projects/<project>/memory/`) and engram `type=discovery` entries. |
+| **Verbatim recall loss** — mempalace was designated for exact conversation replay | Low | Low | The 3 drawers contain only test data. All operational verbatim content lives in checkpoint files (`~/.opencode/projects/<project>/memory/`) and engram `type=discovery` entries. |
 | **Rollback complexity** — if we need mempalace back | Very Low | Low | Option B keeps binaries and data intact. Full rollback = re-enable in `opencode.json` + restore prompt references. |
 | **Agent confusion** — agents trained to call `mempalace_mempalace_search` | Medium | Low | Remove from prompts; agents already prefer `brain_query` and `engram_mem_search`. The mempalace retrieval order (step 5) is rarely reached. |
 

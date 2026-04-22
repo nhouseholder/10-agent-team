@@ -47,7 +47,7 @@ ls -t handoffs/ 2>/dev/null | head -1
 # Read most recent handoff
 
 # Anti-patterns
-cat ~/.claude/anti-patterns.md 2>/dev/null
+cat ~/.opencode/anti-patterns.md 2>/dev/null
 ```
 
 ### Step 2: CLASSIFY STATE

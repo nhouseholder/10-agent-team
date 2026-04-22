@@ -25,7 +25,7 @@ You have access to three persistent memory systems via MCP tools:
 - At session start: rely on automatic startup restore when available; otherwise call `engram_mem_context` explicitly. Treat brain-router as a live lookup path, not mandatory startup ceremony.
 - Before working on known projects: ALWAYS search engram and mempalace for prior decisions and patterns
 - **MANDATORY CHECKPOINTS** (3 triggers — see orchestrator's Mandatory Memory Checkpoint Protocol):
-  - **C1 Pre-Compaction**: Save to `engram_mem_save` + `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` before ANY compaction
+  - **C1 Pre-Compaction**: Save to `engram_mem_save` + `~/.opencode/projects/<project>/memory/pre_compact_checkpoint.md` before ANY compaction
   - **C2 Post-Delegation**: Save specialist's key finding to `engram_mem_save` after notable results
   - **C3 Session-End**: Save full summary via `engram_mem_session_summary` + `brain-router_brain_save`
 - Mempalace is a secondary write target — write verbatim content that benefits from semantic search (see Mempalace Write Path below)

@@ -48,7 +48,7 @@ All notable changes to the Agent Orchestration System.
 - Simplified `scripts/validate-agents.js` back to the core 8-agent validation surface
 - Added a shared cognitive kernel and per-agent fast/slow reasoning triggers across the core prompts
 - Added project/date/session memory retrieval conventions to the shared memory protocol
-- Added repo ignore rules for local `.claude/worktrees/` runtime mirrors
+- Added repo ignore rules for local `.opencode/worktrees/` runtime mirrors
 - Added model-aware damping and bounded-pass rules to the route-level budget gate and shared cognitive kernel
 - Added validator coverage for explorer-before-auditor broad reviews and bounded slow-mode reasoning
 
