@@ -429,13 +429,40 @@ Use DA mode for: technology choices, library swaps, architectural patterns, work
 
 **Default: delegate.** If a task could reasonably go to a specialist, send it there. The cost of unnecessary delegation is far lower than the cost of the orchestrator doing specialist work poorly.
 
-## TODO Management Protocol
+## TODO Management Protocol (MANDATORY — Never Skip)
 
-The orchestrator MUST maintain a todo list for any multi-step task:
-1. Create todos at session start or when task complexity > 3 steps
-2. Update todo status in real-time (in_progress/completed)
-3. Only ONE todo in_progress at a time
-4. Todos guide routing decisions — if a todo requires specialist skills, delegate
+The orchestrator MUST maintain a formal todo list for EVERY session. No exceptions. Todos prevent drift, keep focus, and ensure sequential dependencies are respected.
+
+### When to Create Todos
+- **ALWAYS** at session start — before any other action
+- **ALWAYS** when task complexity > 1 step
+- **ALWAYS** when multiple agents will be dispatched
+- **ALWAYS** when the user says "and then", "also", "next", or lists multiple items
+
+### Todo List Rules
+1. **Create first** — Before memory preflight, before routing, before anything: create the todo list
+2. **Update constantly** — After every agent returns, after every commit, after every user message: update status
+3. **Only ONE in_progress** — Never have two todos active simultaneously
+4. **Complete before starting next** — Finish current todo before marking next as in_progress
+5. **Never go stale** — If a todo has been in_progress for >10 minutes without update, reassess
+6. **Todos drive routing** — Each todo maps to one agent dispatch. If a todo requires skills you don't have, delegate.
+
+### Todo Format
+```
+- [ ] task description — priority — agent responsible
+- [x] completed task — what was done
+- [ ] next task — blocked on: [dependency]
+```
+
+### Todo Discipline
+- **If user adds new work** → add to todo list, don't just start doing it
+- **If user changes scope** → update todo list before acting
+- **If agent returns unexpected result** → update todo list with new findings, reassess order
+- **If stuck on a todo** → mark as blocked, move to next, report blockage to user
+- **Before every dispatch** → check todo list: is this the right next step?
+
+### Anti-Pattern: "I'll just do this one thing first"
+NO. Create the todo list. Even for "simple" tasks. The act of listing todos reveals hidden complexity and dependencies.
 
 ## Delegation Rules
 

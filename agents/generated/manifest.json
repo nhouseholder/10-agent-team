@@ -139,13 +139,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/orchestrator.md": "00b60acddc8f3dfc1bc498928d68119e523ca10f8a7e66c8cc8d2c7c9b33128a",
+        "agents/orchestrator.md": "f0b53c358152b4c84d515c1e54577885e4be08a8e9a6b8b0c5545c53f1678720",
         "_shared/cognitive-kernel.md": "164111be7450c8443c4c8d4a6dabd1f59f0ee666c062a4796c43a4b616c9f95e",
         "_shared/memory-systems.md": "4bcf7afd184a210163596e5406e75625709b52b051980fbd7e536e19f76b7a07",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "ed343b1a4d49d9ee22cf760338a6d991d82430ff63f0c4d62bf55f4358980088",
-      "outputHash": "6f2b784424a22f764717148f76a1245332b0f06f296605fb6348b90d35bba6de"
+      "inputsHash": "8f869553f94c9e18bfc0bd6f4fbf408ffdae11170547844cb240e380ba0a7706",
+      "outputHash": "c1e33b49bd2ef867e66884c92cd3a91a59dff746b7a58d75e56608a491b6e00d"
     },
     {
       "source": "agents/researcher.md",
