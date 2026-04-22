@@ -12,7 +12,7 @@ A multi-agent coding orchestration system for OpenCode. An **orchestrator** rout
 | **researcher** | External docs & research | "How does this library work?", "Find best practices" |
 | **designer** | UI/UX implementation | "Build a dashboard", "Improve this component" |
 | **auditor** | Debug, review, improve, fix | "Fix this bug", "Improve this", "Review this localized code path" |
-| **council** | 3-agent multi-LLM consensus protocol | "What's the best approach?", "Should we...?" |
+| **council** | 3-role arbitration protocol that inherits the active model by default | "What's the best approach?", "Should we...?" |
 | **generalist** | Plan executor, medium tasks | "Execute this plan", "Update these configs", "Refactor" |
 
 ## How It Works
@@ -41,17 +41,17 @@ Specialist executes → verifies → reports back
 
 1. Clone this repo
 2. Copy `opencode.json` to `~/.config/opencode/opencode.json` (or merge into your existing config)
-3. **Replace `YOUR_OPENROUTER_KEY`** in the `provider.openrouter.options.apiKey` field with your own free OpenRouter key
-   - Get one at https://openrouter.ai/keys (free tier, no credit card required)
-   - The council agents (GPT-OSS-120B, MiMo-V2-Flash, Qwen3-Thinking) won't work without this
+3. **Optionally replace `YOUR_OPENROUTER_KEY`** in the `provider.openrouter.options.apiKey` field if you plan to use OpenRouter models
+  - Get one at https://openrouter.ai/keys (free tier, no credit card required)
+  - The default config works without it unless you explicitly choose an OpenRouter model at runtime
 4. Optionally configure MCP servers (engram, mempalace, brain-router) for persistent memory
 5. Start a session — the orchestrator handles routing automatically
 
-> **Without an OpenRouter key**: Everything works except council consensus. The orchestrator falls back to @strategist for multi-perspective evaluation when council is requested.
+> **Without an OpenRouter key**: The default config still works. You only need it if you pick an OpenRouter model at runtime or add explicit council model overrides.
 
-### API Key Setup
+### Optional OpenRouter API Key Setup
 
-The repo `opencode.json` uses a placeholder. You need your own key:
+The repo `opencode.json` uses a placeholder. Add your own key only if you want to run OpenRouter models:
 
 ```jsonc
 // In your ~/.config/opencode/opencode.json:
@@ -69,7 +69,7 @@ The repo `opencode.json` uses a placeholder. You need your own key:
 1. Go to https://openrouter.ai/keys and create a free account
 2. Generate an API key
 3. Paste it into `provider.openrouter.options.apiKey` in your config
-4. Council models are all free tier — no credits consumed
+4. OpenRouter-backed runtime selections and manual council overrides will now work
 
 ## Features
 
@@ -78,7 +78,7 @@ The repo `opencode.json` uses a placeholder. You need your own key:
 - **Shared Cognitive Kernel** — every core agent defaults to fast mode and escalates to slow mode only when ambiguity, risk, or failures justify it
 - **Prompt Enhancement Protocol** — silently clarifies vague prompts (1-2 questions max)
 - **Multi-Agent Chains** — sequential requests execute automatically, max depth 4
-- **Council Fan-Out Protocol** — structured idea arbitration via advocate-for, advocate-against, and judge on distinct models
+- **Council Fan-Out Protocol** — structured advocate-for / advocate-against / judge arbitration that inherits the active model by default
 - **Chain Recovery** — failed steps retry, escalate, or pause for user input
 - **Persistent Memory** — three MCP memory systems survive across sessions
 - **Validation** — `scripts/validate-agents.js` checks source markers, generated prompt freshness, registry wiring, and reasoning-scenario integrity
@@ -122,7 +122,7 @@ The system uses a Kahneman-style fast/slow operating contract across the full 8-
 - **Memory preflight** happens before non-trivial work so agents reuse prior decisions instead of rediscovering them
 - **Anti-WYSIATI and conflict checks** run before high-confidence completion on ambiguous or high-stakes work
 - **Council** is the expensive slow path for genuinely high-stakes decisions, not routine planning
-- **Council** fans out to 3 distinct councillor agents; it is a protocol, not a single-agent roleplay mode
+- **Council** fans out to 3 distinct councillor agents; by default they inherit the active model, and explicit per-agent overrides are optional
 - **Fast and slow are control modes, not value judgments** — fast is not automatically biased, and slow is not automatically better
 
 ## Sources of Truth

@@ -102,14 +102,14 @@ Triple-mode agent: READ MODE for auditing/reviewing, FIX MODE for implementing c
 
 **Output:** Summary of changes, verification status, and next steps.
 
-### @council (Multi-LLM Consensus)
+### @council (Structured Arbitration)
 
-Runs a true multi-model consensus protocol for high-stakes decisions. The orchestrator fans out to 3 separate councillor agents and synthesizes the verdict.
+Runs a 3-role arbitration protocol for high-stakes decisions. The orchestrator fans out to 3 separate councillor agents and synthesizes the verdict. By default those councillors inherit the active orchestrator/session model.
 
 **When to use:**
 - Critical architectural choices where wrong choice is costly
 - Debugging has failed 3+ times
-- Need diverse perspectives on ambiguous problems
+- Need independent perspectives on ambiguous problems
 
 **When NOT to use:**
 - Routine decisions (use @strategist LITE)
@@ -120,6 +120,8 @@ Runs a true multi-model consensus protocol for high-stakes decisions. The orches
 1. Orchestrator builds one shared briefing with context, constraints, and memory.
 2. It fans out to `@council-advocate-for`, `@council-advocate-against`, and `@council-judge`.
 3. It returns a synthesized verdict: `PROCEED`, `PROCEED WITH CAVEATS`, `REJECT`, or `NEEDS MORE DATA`.
+
+If you manually add valid agent-level `model` overrides for the three councillors, the same protocol becomes true multi-model council.
 
 **Example prompts:**
 - "Should we use microservices or monolith for this project?"
@@ -191,33 +193,34 @@ The orchestrator detects sequential language and chains agents automatically.
 - State saved to the session checkpoint before pausing
 - Resumes from last completed step
 
-## Configuring Council for True Multi-LLM Consensus
+## Optional: Manual Council Model Overrides
 
-Council requires 3 **different** models. With the same model, it's self-talk.
+The shipped config intentionally does **not** hardcode council model IDs. By default, councillors inherit the active orchestrator/session model, which keeps the repo portable and valid.
 
-### Option A: OpenRouter (Recommended — Free, 3 Different Reasoning Models)
+If you want true multi-model council, add valid agent-level overrides yourself:
 
-One free API key gives access to 3 reasoning models with native chain-of-thought.
+```json
+{
+	"agent": {
+		"council-advocate-for": {
+			"mode": "subagent",
+			"model": "<provider>/<model-a>",
+			"prompt_file": "agents/generated/council-advocate-for.md"
+		},
+		"council-advocate-against": {
+			"mode": "subagent",
+			"model": "<provider>/<model-b>",
+			"prompt_file": "agents/generated/council-advocate-against.md"
+		},
+		"council-judge": {
+			"mode": "subagent",
+			"model": "<provider>/<model-c>",
+			"prompt_file": "agents/generated/council-judge.md"
+		}
+	}
+}
+```
 
-**The 3 Council Models:**
+Use `opencode models [provider]` to list valid model IDs before adding overrides.
 
-| Role | Model | Why |
-|---|---|---|
-| **Advocate For** | `openai/gpt-oss-120b:free` | OpenAI's distribution. Highest MMLU-Pro (90.0%). Adjustable reasoning effort. |
-| **Advocate Against** | `xiaomi/mimo-v2-flash:free` | Xiaomi's distribution. Highest AIME 2025 (94.1%). Best SWE-Bench (73.4%). |
-| **Judge** | `qwen/qwen3-235b-a22b-thinking-2507:free` | Alibaba's distribution. Best HMMT (83.9%), LiveCodeBench v6 (74.1%). |
-
-**Setup (2 minutes):**
-
-1. Get a free OpenRouter API key: https://openrouter.ai/keys (no credit card)
-2. Copy `examples/openrouter-council.json` to your OpenCode config directory as `opencode.json`
-3. Replace `YOUR_OPENROUTER_KEY` with your actual key
-4. Start a session — council now uses 3 different reasoning models
-
-**Rate limits:** ~200 requests/day per model on the free tier.
-
-**Backup models** (swap in if any primary is unavailable): DeepSeek R1, Llama 4 Maverick, Gemma 3 27B. See `agents/council.md` for full backup roster.
-
-### Option B: Single Provider (Default — Works Out of the Box)
-
-Without the 3 councillor models, the orchestrator falls back to `@strategist` for multi-perspective evaluation. Use `examples/standard.json` or `examples/minimal.json` when you want the rest of the 8-agent system without true council fan-out.
+If you plan to use OpenRouter models, copy `examples/openrouter-council.json`, replace `YOUR_OPENROUTER_KEY`, and then add your own valid councillor overrides.

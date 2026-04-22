@@ -224,30 +224,31 @@ function validateRegistry(config) {
   return { label: "opencode registry", errors, warnings };
 }
 
-function validateModelTiers(config) {
+function validateModelConfiguration(config) {
   const errors = [];
   const warnings = [];
-  const models = config.models || {};
 
-  for (const tier of ["default", "fast", "smart", "deep-reasoning"]) {
-    if (!models[tier]) {
-      errors.push(`Missing model tier alias: ${tier}`);
-    }
+  if (!config.model) {
+    errors.push("Missing default model: model");
   }
 
-  if (models.fast && models.smart && models.fast === models.smart) {
-    errors.push("Model tiers fast and smart must differ");
+  if (Object.prototype.hasOwnProperty.call(config, "models")) {
+    errors.push("Unsupported top-level key in opencode.json: models");
   }
 
-  if (models.smart && models["deep-reasoning"] && models.smart === models["deep-reasoning"]) {
-    errors.push("Model tiers smart and deep-reasoning must differ");
+  const overriddenAgents = Object.entries(config.agent || {})
+    .filter(([, agentConfig]) => Object.prototype.hasOwnProperty.call(agentConfig, "model"))
+    .map(([agentName]) => agentName);
+
+  if (overriddenAgents.length > 0) {
+    errors.push(`Default config should let agents inherit the active orchestrator/session model; remove explicit model override(s): ${overriddenAgents.join(", ")}`);
   }
 
-  if (config.agent?.["council-judge"]?.model && models["deep-reasoning"] && config.agent["council-judge"].model !== models["deep-reasoning"]) {
-    warnings.push("council-judge model is not aligned with the deep-reasoning tier alias");
+  if (config.provider?.openrouter?.options?.apiKey === "YOUR_OPENROUTER_KEY") {
+    warnings.push("OpenRouter provider is still using the placeholder API key; that's fine unless you select an OpenRouter model at runtime");
   }
 
-  return { label: "model tiers", errors, warnings };
+  return { label: "model inheritance", errors, warnings };
 }
 
 function validateRuntimeMemorySurface(config) {
@@ -343,6 +344,14 @@ function validateProductSurfaces(config) {
 
   const expectedAgents = config.agent || {};
   const exampleAgents = standardExample.agent || {};
+  if (standardExample.model !== config.model) {
+    errors.push(`examples/standard.json default model should be ${config.model}`);
+  }
+
+  if (Object.prototype.hasOwnProperty.call(standardExample, "models")) {
+    errors.push("examples/standard.json should not define an unsupported top-level models block");
+  }
+
   for (const [agentName, expected] of Object.entries(expectedAgents)) {
     const exampleEntry = exampleAgents[agentName];
     if (!exampleEntry) {
@@ -358,7 +367,15 @@ function validateProductSurfaces(config) {
       errors.push(`examples/standard.json ${agentName} prompt_file should be ${expected.prompt_file}`);
     }
 
-    if (expected.model && exampleEntry.model !== expected.model) {
+    const expectedHasModel = Object.prototype.hasOwnProperty.call(expected, "model");
+    const exampleHasModel = Object.prototype.hasOwnProperty.call(exampleEntry, "model");
+
+    if (expectedHasModel !== exampleHasModel) {
+      errors.push(`examples/standard.json ${agentName} should ${expectedHasModel ? "include" : "omit"} an explicit model override`);
+      continue;
+    }
+
+    if (expectedHasModel && exampleEntry.model !== expected.model) {
       errors.push(`examples/standard.json ${agentName} model should be ${expected.model}`);
     }
   }
@@ -366,19 +383,6 @@ function validateProductSurfaces(config) {
   for (const agentName of Object.keys(exampleAgents)) {
     if (!expectedAgents[agentName]) {
       warnings.push(`examples/standard.json includes unrecognized agent entry: ${agentName}`);
-    }
-  }
-
-  const expectedModels = config.models || {};
-  const exampleModels = standardExample.models || {};
-  for (const [tierName, expectedValue] of Object.entries(expectedModels)) {
-    if (!(tierName in exampleModels)) {
-      errors.push(`examples/standard.json missing model tier alias: ${tierName}`);
-      continue;
-    }
-
-    if (exampleModels[tierName] !== expectedValue) {
-      errors.push(`examples/standard.json ${tierName} tier should be ${expectedValue}`);
     }
   }
 
@@ -455,7 +459,7 @@ function main() {
   const sourceResults = validateSourcePrompts();
   const registryResults = configErrors.length > 0
     ? [{ label: "opencode.json", errors: configErrors, warnings: [] }]
-    : [validateRegistry(config), validateModelTiers(config), validateRuntimeMemorySurface(config), validateOrchestratorReferences(config)];
+    : [validateRegistry(config), validateModelConfiguration(config), validateRuntimeMemorySurface(config), validateOrchestratorReferences(config)];
   const productResults = configErrors.length > 0 ? [] : [validateProductSurfaces(config)];
   const generatedResults = [validateGeneratedPrompts(entries)];
   const scenarioResults = validateReasoningScenarios();

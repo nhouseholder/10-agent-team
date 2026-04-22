@@ -269,10 +269,10 @@ Triple-mode agent. READ MODE for auditing/reviewing/debugging. FIX MODE for impl
 ## @council
 
 **Mode:** subagent  
-**Model:** protocol reference only
+**Model:** inherits the invoking orchestrator/session model by default
 
 ### Role
-Protocol reference for true multi-LLM consensus. The orchestrator fans out to 3 separate councillor agents on different models, then synthesizes the verdict.
+Protocol reference for structured council arbitration. The orchestrator fans out to 3 separate councillor agents, then synthesizes the verdict. Explicit per-agent model overrides are optional if you want multi-model council.
 
 ### How It Works
 1. The orchestrator detects a high-stakes decision or repeated failed debugging.
@@ -289,7 +289,7 @@ Protocol reference for true multi-LLM consensus. The orchestrator fans out to 3 
 ### When to Use
 - High-stakes architectural choices where wrong choice is costly
 - Debugging has failed 3+ times
-- Multiple credible approaches remain after strategist-level analysis and model diversity is worth the latency
+- Multiple credible approaches remain after strategist-level analysis and an additional arbitration pass is worth the latency
 
 ### When NOT to Use
 - Routine decisions (use @strategist LITE mode)
@@ -309,8 +309,8 @@ Protocol reference for true multi-LLM consensus. The orchestrator fans out to 3 
 
 ### Fallback
 - If one councillor fails, continue with the remaining two and note the failure
-- If OpenRouter is unavailable or 2+ councillors fail, fall back to @strategist
-- Never treat a single-model roleplay as equivalent to true council fan-out
+- If 2+ councillors fail, fall back to @strategist
+- Default config requires no special provider; councillors inherit the active model automatically
 
 ---
 

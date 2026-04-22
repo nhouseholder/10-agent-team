@@ -198,18 +198,18 @@ function runScenarioChecks() {
         message: "orchestrator missing the narrow concrete-execution anti-reroute rule",
       },
     ]),
-    scenario("model tier differentiation", [
+    scenario("agent model inheritance", [
       {
-        pass: Boolean(opencode.models && opencode.models.fast && opencode.models.smart && opencode.models["deep-reasoning"]),
-        message: "opencode.json missing one or more required model tiers (fast, smart, deep-reasoning)",
+        pass: Boolean(opencode.model),
+        message: "opencode.json missing a default model",
       },
       {
-        pass: opencode.models.fast !== opencode.models.smart,
-        message: "opencode.json model tiers fast and smart must not be identical",
+        pass: !Object.prototype.hasOwnProperty.call(opencode, "models"),
+        message: "opencode.json should not define an unsupported top-level models block",
       },
       {
-        pass: opencode.models.smart !== opencode.models["deep-reasoning"],
-        message: "opencode.json model tiers smart and deep-reasoning must not be identical",
+        pass: Object.values(opencode.agent || {}).every((agentConfig) => !Object.prototype.hasOwnProperty.call(agentConfig, "model")),
+        message: "opencode.json should let all agents inherit the active orchestrator/session model by default",
       },
     ]),
   ];

@@ -91,16 +91,17 @@ Validation happens in two passes:
 - `node scripts/compose-prompts.js` regenerates `agents/generated/*.md` and `agents/generated/manifest.json`
 - `node scripts/validate-agents.js` checks source prompt markers, generated prompt freshness, registry wiring, and reasoning-scenario coverage
 
-## Model Tier Policy
+## Model Inheritance Policy
 
-The runtime now distinguishes between reasoning tiers in `opencode.json` instead of mapping every alias to the same model.
+The default runtime keeps `opencode.json` simple: it sets one top-level `model`, then lets agent entries inherit from the active session unless you explicitly add an override.
 
-- **`fast`** is for low-cost routine execution
-- **`smart`** is the default general-purpose tier for core agents
-- **`deep-reasoning`** is reserved for high-stakes synthesis and optional deep-judge/planner experiments
-- **`council-*`** remains a separate bounded arbitration path with dedicated models per councillor
+- **Top-level `model`** sets the default session model and can still be overridden by OpenCode runtime selection or CLI flags
+- **Primary agents without `model`** inherit the active session/default model
+- **Subagents without `model`** inherit the invoking primary agent's model
+- **`model_tier` metadata in delegation packets is advisory routing context**, not a requirement to hardcode per-agent model IDs in config
+- **Explicit per-agent overrides are optional advanced configuration** when you intentionally want a different model for a specific agent or councillor
 
-This separation is policy-first: the orchestrator chooses the justified tier in the delegation packet, validators ensure the tiers remain distinct, and future runtime wiring can consume those aliases directly without redesigning the prompt architecture.
+This keeps the shipped config valid and portable while still allowing advanced users to opt into manual model specialization.
 
 ## Per-Agent Slow-Mode Triggers
 

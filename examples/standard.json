@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "_comment": "Standard config — current 8-agent runtime with 3 councillor subagents. Recommended default for most users.",
+  "_comment": "Standard config — current 8-agent runtime. Agents inherit the active orchestrator/session model unless you add explicit overrides.",
   "version": "1.6.1",
   "model": "opencode-go/qwen3.6-plus",
   "agent": {
@@ -31,21 +31,18 @@
     "council": {
       "mode": "subagent",
       "prompt_file": "agents/generated/council.md",
-      "note": "Protocol reference only. Orchestrator fans out to 3 councillor agents below."
+      "note": "Protocol reference only. Councillors inherit the active orchestrator/session model unless you add explicit agent-level overrides."
     },
     "council-advocate-for": {
       "mode": "subagent",
-      "model": "openrouter/openai/gpt-oss-120b:free",
       "prompt_file": "agents/generated/council-advocate-for.md"
     },
     "council-advocate-against": {
       "mode": "subagent",
-      "model": "openrouter/xiaomi/mimo-v2-flash:free",
       "prompt_file": "agents/generated/council-advocate-against.md"
     },
     "council-judge": {
       "mode": "subagent",
-      "model": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free",
       "prompt_file": "agents/generated/council-judge.md"
     },
     "generalist": {
@@ -59,15 +56,5 @@
         "apiKey": "YOUR_OPENROUTER_KEY"
       }
     }
-  },
-  "models": {
-    "default": "opencode-go/qwen3.6-plus",
-    "fast": "openrouter/xiaomi/mimo-v2-flash:free",
-    "smart": "opencode-go/qwen3.6-plus",
-    "creative": "openrouter/openai/gpt-oss-120b:free",
-    "deep-reasoning": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free",
-    "council-advocate-for": "openrouter/openai/gpt-oss-120b:free",
-    "council-advocate-against": "openrouter/xiaomi/mimo-v2-flash:free",
-    "council-judge": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free"
   }
 }

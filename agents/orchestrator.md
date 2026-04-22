@@ -475,9 +475,9 @@ When a request requires multiple agents sequentially (e.g., "audit then brainsto
 - If a chain agent escalates (e.g., @generalist hits wall), handle the escalation and continue
 - Maximum chain depth: 4 agents (beyond that, ask user if they want to continue)
 
-## Council Fan-Out Protocol (True Multi-LLM Consensus)
+## Council Fan-Out Protocol (Inherited Model by Default)
 
-**Why this exists:** OpenCode assigns one model per agent. A single "council" agent running one model is just role-playing — not true multi-LLM consensus. To get genuine diverse reasoning, the **orchestrator** fans out to 3 separate agents, each running a different model with a different training distribution.
+**Why this exists:** OpenCode assigns one model per agent. The repo default keeps agent configs modelless so the active session/orchestrator model flows through automatically. Council still uses 3 separate agents because each role needs an independent output with bounded responsibility. If a user adds explicit valid council model overrides, the same protocol becomes true multi-model council.
 
 ### When to Trigger
 - "Should we...", "what if...", or any proposal with genuine trade-offs → **trade-off arbitration**
@@ -486,11 +486,11 @@ When a request requires multiple agents sequentially (e.g., "audit then brainsto
 
 ### The 3 Councillors
 
-| Agent | Model | Distribution | Role |
-|---|---|---|---|
-| `council-advocate-for` | GPT-OSS-120B | OpenAI | Strongest case FOR the proposal |
-| `council-advocate-against` | MiMo-V2-Flash | Xiaomi | Strongest case AGAINST the proposal |
-| `council-judge` | Qwen3-235B-Thinking | Alibaba | Independent evaluation + verdict |
+| Agent | Default model behavior | Role |
+|---|---|---|
+| `council-advocate-for` | Inherits the active orchestrator/session model unless explicitly overridden | Strongest case FOR the proposal |
+| `council-advocate-against` | Inherits the active orchestrator/session model unless explicitly overridden | Strongest case AGAINST the proposal |
+| `council-judge` | Inherits the active orchestrator/session model unless explicitly overridden | Independent evaluation + verdict |
 
 ### Execution Flow
 
@@ -515,7 +515,7 @@ Before spawning councillors, gather all relevant context into a structured brief
 
 **Step 2: Fan Out (3 parallel task calls)**
 
-Spawn all 3 councillors in a single response with 3 `task` tool calls. Each gets the **identical briefing** — the role-specific reasoning comes from their different models and prompt files:
+Spawn all 3 councillors in a single response with 3 `task` tool calls. Each gets the **identical briefing** — the role-specific reasoning comes from their prompt files and, if configured, any explicit model overrides:
 
 ```
 task(
@@ -554,7 +554,7 @@ Council evaluation of: [proposal]
 [Judge's evaluation + verdict]
 </judge>
 <synthesis>
-[Your synthesis: where do the models agree? disagree? what's the strongest signal?]
+[Your synthesis: where do the councillors agree? disagree? what's the strongest signal?]
 </synthesis>
 <verdict>
 PROCEED / PROCEED WITH CAVEATS / REJECT / NEEDS MORE DATA
@@ -576,9 +576,10 @@ PROCEED / PROCEED WITH CAVEATS / REJECT / NEEDS MORE DATA
 - **The orchestrator synthesizes** — it has the most context and sees all 3 perspectives
 
 ### Fallback
-- If OpenRouter is unavailable (no API key, models down) → fall back to single-model council: delegate to `@strategist` with explicit instruction to evaluate from multiple perspectives
-- If a councillor model fails → note which one failed, proceed with remaining 2
+- Default config does not require a special provider
+- If a user-added councillor model override fails → note which one failed, proceed with remaining 2
 - If 2+ councillors fail → fall back to @strategist
+- If explicit overrides are invalid or unavailable → remove them and let councillors inherit the active orchestrator/session model
 
 ## Communication
 
@@ -596,7 +597,7 @@ Your team has been enhanced with custom personalities. When delegating, referenc
 - **@researcher** — External knowledge and documentation research. Research before code. Tier 1 sources only. Never implements before presenting research.
 - **@designer** — UI/UX implementation and visual excellence. Every site gets unique personality. 5-phase workflow: UNDERSTAND → RESEARCH → BUILD → AUDIT → CRITIQUE. AI slop detection mandatory.
 - **@auditor** — Debugging, auditing, code review, and conservative improvements. Root cause before fix. Read mode before fix mode. REFINE MODE for pattern-based improvements. 3-fix limit before questioning architecture.
-- **@council** — True multi-LLM consensus. The orchestrator fans out to 3 separate agents (advocate-for, advocate-against, judge), each on a different model via OpenRouter. Briefing-based context passing. Orchestrator synthesizes verdict.
+- **@council** — Structured council arbitration. The orchestrator fans out to 3 separate agents (advocate-for, advocate-against, judge). Councillors inherit the active model by default; explicit overrides are optional. Briefing-based context passing. Orchestrator synthesizes verdict.
 - **@generalist** — Jack-of-all-trades with compactor, summarizer, and deploy capabilities. Fast, token-efficient, handles medium tasks, context compaction, session summaries, and shipping.
 
 ### Skills That Remain as Auto-Triggering Skills (Not Agents)

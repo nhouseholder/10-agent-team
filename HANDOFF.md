@@ -44,9 +44,9 @@
 - **Phase 2 (Summary):** Write structured 600-1000 word summary with 5 headers and word budget per section
 - Ensures durable knowledge persists even when compaction summary is lossy
 
-### Council: True Multi-LLM Consensus
-- 3-agent fan-out: GPT-OSS-120B (advocate-for), MiMo-V2-Flash (advocate-against), Qwen3-235B-Thinking (judge)
-- All free via OpenRouter, no credit card needed
+### Council: Structured Arbitration
+- 3-agent fan-out: advocate-for, advocate-against, judge
+- Councillors inherit the active orchestrator/session model by default; explicit per-agent overrides are optional
 - New agent files: `council-advocate-for.md`, `council-advocate-against.md`, `council-judge.md`
 
 ### Stale Reference Purge
@@ -63,7 +63,7 @@
 | **researcher** | External docs & research | all |
 | **designer** | UI/UX implementation | all |
 | **auditor** | Debugging, audit, code review | all |
-| **council** | Multi-LLM consensus (3-model fan-out) | subagent |
+| **council** | Structured arbitration (3-role fan-out) | subagent |
 | **generalist** | Plan executor, medium tasks | all |
 
 

@@ -46,10 +46,11 @@ Never edit `agents/generated/*.md` directly. They are build artifacts from `node
    ```json
    "agent-name": {
      "mode": "all",
-     "model": "opencode-go/qwen3.6-plus",
      "prompt_file": "agents/generated/agent-name.md"
    }
    ```
+
+   Add an agent-level `model` only if you intentionally want that agent to override the active session model.
 
 5. Add to orchestrator's decision tree in `agents/orchestrator.md`
 6. Add to delegation table in orchestrator prompt
