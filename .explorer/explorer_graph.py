@@ -8,6 +8,7 @@ import os
 import re
 import sqlite3
 import sys
+from collections import deque
 from datetime import datetime, timezone
 
 IGNORE_DIRS = {".git", "node_modules", "__pycache__", ".venv", "vendor", ".tox", "dist", "build", ".next", ".nuxt"}
@@ -80,6 +81,11 @@ def init_db(db_path):
     CREATE INDEX IF NOT EXISTS idx_edges_source ON edges(source_file);
     CREATE INDEX IF NOT EXISTS idx_edges_target ON edges(target_file);
     """)
+    # Phase 3: add risk_score column if missing
+    try:
+        c.execute("ALTER TABLE files ADD COLUMN risk_score REAL DEFAULT 0.0")
+    except sqlite3.OperationalError:
+        pass
     conn.commit()
     return conn
 
@@ -122,13 +128,20 @@ def resolve_import(source_dir, imp, lang):
     return None
 
 
+def _is_vendor_path(path):
+    """Check if a resolved path is inside node_modules or vendor."""
+    parts = os.path.normpath(path).split(os.sep)
+    return "node_modules" in parts or "vendor" in parts
+
+
 def parse_file(path, repo_root):
     lang = detect_language(path)
     if lang == "unknown" or lang not in RE_PATTERNS:
-        return lang, [], []
+        return lang, [], [], []
     patterns = RE_PATTERNS[lang]
     defs = []
-    imports = []
+    resolved_imports = []
+    unresolved_imports = []
     rel_dir = os.path.dirname(path)
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         for i, line in enumerate(f, 1):
@@ -141,12 +154,16 @@ def parse_file(path, repo_root):
                     if raw:
                         resolved = resolve_import(rel_dir, raw, lang)
                         if resolved:
-                            imports.append(os.path.relpath(resolved, repo_root))
+                            rel = os.path.relpath(resolved, repo_root)
+                            tier = "MEDIUM" if _is_vendor_path(resolved) else "HIGH"
+                            resolved_imports.append((rel, tier))
+                        else:
+                            unresolved_imports.append(raw)
                 else:
                     name = m.group(1)
                     sig = m.group(2) if m.lastindex >= 2 else ""
                     defs.append({"type": typ, "name": name, "line": i, "signature": sig.strip()})
-    return lang, defs, imports
+    return lang, defs, resolved_imports, unresolved_imports
 
 
 def walk_repo(repo_root):
@@ -191,7 +208,7 @@ def build_graph(conn, repo_root, files, incremental=False):
 
     for rel, h in to_parse:
         full = os.path.join(repo_root, rel)
-        lang, defs, imports = parse_file(full, repo_root)
+        lang, defs, resolved_imports, unresolved_imports = parse_file(full, repo_root)
         is_entry = 1 if os.path.basename(rel).lower() in IMPORTANT_FILES else 0
         is_test = 1 if "/test" in rel or "/tests" in rel or rel.startswith("test") or "/__tests__/" in rel or ".test." in rel or ".spec." in rel else 0
         c.execute(
@@ -205,13 +222,38 @@ def build_graph(conn, repo_root, files, incremental=False):
                 "INSERT INTO nodes (file_path, type, name, line, signature) VALUES (?,?,?,?,?)",
                 (rel, d["type"], d["name"], d["line"], d["signature"]),
             )
-        for imp in set(imports):
+        seen = set()
+        for imp, tier in resolved_imports:
+            if imp not in seen:
+                c.execute(
+                    "INSERT INTO edges (source_file, target_file, type, confidence) VALUES (?,?,?,?)",
+                    (rel, imp, "IMPORTS_FROM", tier),
+                )
+                seen.add(imp)
+        for imp in set(unresolved_imports):
             c.execute(
                 "INSERT INTO edges (source_file, target_file, type, confidence) VALUES (?,?,?,?)",
-                (rel, imp, "IMPORTS_FROM", "EXTRACTED"),
+                (rel, imp, "IMPORTS_FROM", "LOW"),
             )
     conn.commit()
     return len(to_parse)
+
+
+def detect_test_edges(conn):
+    """Phase 2: create TESTED_BY edges from test files to their production targets."""
+    c = conn.cursor()
+    c.execute("SELECT source_file, target_file FROM edges WHERE type='IMPORTS_FROM' AND source_file IN (SELECT path FROM files WHERE is_test=1)")
+    test_edges = c.fetchall()
+    for source, target in test_edges:
+        # Only link to non-test files
+        c.execute("SELECT is_test FROM files WHERE path=?", (target,))
+        row = c.fetchone()
+        if row and not row[0]:
+            c.execute(
+                "INSERT INTO edges (source_file, target_file, type, confidence) VALUES (?,?,?,?)",
+                (source, target, "TESTED_BY", "INFERRED"),
+            )
+    conn.commit()
 
 
 def pagerank(conn, repo_root, damping=0.85, iterations=20):
@@ -250,9 +292,26 @@ def pagerank(conn, repo_root, damping=0.85, iterations=20):
     conn.commit()
 
 
+def compute_risk_scores(conn):
+    """Phase 3: risk_score = pagerank * (1 + 0.5*is_entry + 0.3*fan_in - 0.3*has_tests)."""
+    c = conn.cursor()
+    c.execute("SELECT path, pagerank, is_entry_point FROM files")
+    files = c.fetchall()
+    # fan-in: count of IMPORTS_FROM edges targeting this file
+    c.execute("SELECT target_file, COUNT(*) FROM edges WHERE type='IMPORTS_FROM' GROUP BY target_file")
+    fan_in = {t: cnt for t, cnt in c.fetchall()}
+    # has_tests: 1 if any TESTED_BY edge targets this file
+    c.execute("SELECT DISTINCT target_file FROM edges WHERE type='TESTED_BY'")
+    tested = {t for (t,) in c.fetchall()}
+    for path, pr, is_entry in files:
+        score = pr * (1 + 0.5 * is_entry + 0.3 * fan_in.get(path, 0) - 0.3 * (1 if path in tested else 0))
+        c.execute("UPDATE files SET risk_score=? WHERE path=?", (score, path))
+    conn.commit()
+
+
 def export_json(conn, repo_root, out_path, mode="full"):
     c = conn.cursor()
-    c.execute("SELECT path, sha256, last_seen, language, pagerank, is_entry_point, is_test FROM files")
+    c.execute("SELECT path, sha256, last_seen, language, pagerank, is_entry_point, is_test, risk_score FROM files")
     file_rows = c.fetchall()
     c.execute("SELECT file_path, type, name, line, signature FROM nodes")
     node_rows = c.fetchall()
@@ -270,7 +329,7 @@ def export_json(conn, repo_root, out_path, mode="full"):
     for fp, typ, name, line, sig in node_rows:
         defs_map.setdefault(fp, []).append({"type": typ, "name": name, "line": line, "signature": sig})
 
-    for path, sha, last, lang, pr, entry, test in file_rows:
+    for path, sha, last, lang, pr, entry, test, risk in file_rows:
         files_data[path] = {
             "sha256": sha,
             "last_parsed": last or datetime.now(timezone.utc).isoformat(),
@@ -279,13 +338,14 @@ def export_json(conn, repo_root, out_path, mode="full"):
             "imports": imports_map.get(path, []),
             "imported_by": imported_by_map.get(path, []),
             "page_rank": pr,
+            "risk_score": risk if risk is not None else 0.0,
             "is_entry_point": bool(entry),
             "is_test": bool(test),
             "confidence": "extracted" if defs_map.get(path) or imports_map.get(path) else "inferred",
         }
 
     important = []
-    for path, sha, last, lang, pr, entry, test in file_rows:
+    for path, sha, last, lang, pr, entry, test, risk in file_rows:
         reasons = []
         if pr > 0.1:
             reasons.append("high_pagerank")
@@ -298,7 +358,7 @@ def export_json(conn, repo_root, out_path, mode="full"):
     important.sort(key=lambda x: x["score"], reverse=True)
 
     meta = {
-        "version": "2.0",
+        "version": "2.1",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "last_commit": None,
         "map_mode": mode,
@@ -318,15 +378,31 @@ def export_json(conn, repo_root, out_path, mode="full"):
     return out
 
 
-def impact_radius(conn, paths):
+def impact_radius(conn, paths, max_depth=2):
+    """BFS from target files, following imports and imported_by up to max_depth."""
     c = conn.cursor()
     result = {}
     for p in paths:
-        c.execute("SELECT target_file FROM edges WHERE source_file=?", (p,))
-        upstream = [t for (t,) in c.fetchall()]
-        c.execute("SELECT source_file FROM edges WHERE target_file=?", (p,))
-        downstream = [s for (s,) in c.fetchall()]
-        result[p] = {"upstream": upstream, "downstream": downstream, "depth": 1}
+        levels = {}
+        visited = {p}
+        queue = deque([(p, 0)])
+        while queue:
+            current, depth = queue.popleft()
+            if depth >= max_depth:
+                continue
+            # upstream: what this file imports
+            c.execute("SELECT target_file FROM edges WHERE source_file=? AND type='IMPORTS_FROM'", (current,))
+            upstream = [t for (t,) in c.fetchall() if t not in visited]
+            # downstream: what imports this file
+            c.execute("SELECT source_file FROM edges WHERE target_file=? AND type='IMPORTS_FROM'", (current,))
+            downstream = [s for (s,) in c.fetchall() if s not in visited]
+            next_depth = depth + 1
+            for f in upstream + downstream:
+                if f not in visited:
+                    visited.add(f)
+                    levels.setdefault(next_depth, []).append(f)
+                    queue.append((f, next_depth))
+        result[p] = {"levels": {str(k): v for k, v in sorted(levels.items())}, "total_reachable": len(visited) - 1}
     return result
 
 
@@ -347,6 +423,7 @@ def main():
     p.add_argument("--full", action="store_true")
     p.add_argument("--incremental", action="store_true")
     p.add_argument("--impact-radius", nargs="+", metavar="PATH")
+    p.add_argument("--depth", type=int, default=2, help="Max depth for impact radius BFS")
     p.add_argument("--status", action="store_true")
     args = p.parse_args()
 
@@ -363,9 +440,9 @@ def main():
         return
 
     if args.impact_radius:
-        rad = impact_radius(conn, args.impact_radius)
-        out_path = os.path.join(explorer_dir, "impact-radius.json")
-        with open(out_path, "w", encoding="utf-8") as f:
+        rad = impact_radius(conn, args.impact_radius, max_depth=args.depth)
+        rad_path = os.path.join(explorer_dir, "impact-radius.json")
+        with open(rad_path, "w", encoding="utf-8") as f:
             json.dump(rad, f, indent=2)
         print(json.dumps(rad, indent=2))
         return
@@ -373,7 +450,9 @@ def main():
     mode = "incremental" if args.incremental else "full"
     files = walk_repo(repo_root)
     parsed = build_graph(conn, repo_root, files, incremental=args.incremental)
+    detect_test_edges(conn)
     pagerank(conn, repo_root)
+    compute_risk_scores(conn)
     export_json(conn, repo_root, out_path, mode=mode)
     print(f"Mode: {mode}, files: {len(files)}, re-parsed: {parsed}, output: {out_path}")
 

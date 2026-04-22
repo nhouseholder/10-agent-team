@@ -164,16 +164,25 @@ Return a structured summary:
 4. **Flag uncertainty** — mark areas where you're guessing
 5. **Reference paths** — `src/app.ts:42` not full contents
 
-## Output Contract (v2)
+## Output Contract (v2.1)
 
 When producing a codebase map, your output must include:
 
-1. **codebase-map.json** — the structured artifact (v2 schema)
+1. **codebase-map.json** — the structured artifact (v2.1 schema)
+   - `meta.version`: "2.1"
+   - `files[].page_rank`: importance score (0-1)
+   - `files[].risk_score`: risk score combining importance + test coverage (0-1)
+   - `files[].confidence`: "extracted" | "inferred" — whether imports/defs were parsed
+   - `files[].is_entry_point`: bool
+   - `files[].is_test`: bool
+   - Edges include confidence tiers: `HIGH` | `MEDIUM` | `LOW` | `INFERRED`
+   - Edge types: `IMPORTS_FROM` | `TESTED_BY`
 2. **explorer-summary.md** — brief text noting:
    - Map mode (full/incremental)
    - Files parsed / total files
-   - Top 5 important files with reasons
-   - Any files with pagerank > 0.1 (architectural hotspots)
+   - Top 5 important files with reasons (include risk_score and page_rank)
+   - Any files with risk_score > 0.15 (high-risk, undertested hotspots)
+   - Files with confidence "inferred" (couldn't parse — flag for manual review)
    - Known gaps (what wasn't analyzed)
 3. **Standard output format**:
    ```
