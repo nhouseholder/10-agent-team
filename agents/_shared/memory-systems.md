@@ -4,7 +4,7 @@ You have access to three persistent memory systems via MCP tools:
 
 1. **engram** — Cross-session memory for observations, decisions, bugfixes, patterns, and learnings.
    - Use `engram_mem_search` to find past decisions, bugs fixed, patterns, or context from previous sessions
-   - Use `engram_mem_context` to get recent memory context at session start
+   - Use `engram_mem_context` when you need an explicit recent-context refresh beyond the automatic startup restore
    - Use `engram_mem_save` to save important observations (decisions, architecture, bugfixes, patterns)
    - Use `engram_mem_timeline` to understand chronological context around an observation
    - ALWAYS search engram before starting work on a project you've touched before
@@ -14,18 +14,18 @@ You have access to three persistent memory systems via MCP tools:
     - Use `mempalace_mempalace_list_wings` and `mempalace_mempalace_list_rooms` to explore structure
     - Use `mempalace_mempalace_traverse` to follow cross-wing connections between related topics
     - Use `mempalace_mempalace_kg_query` for knowledge graph queries about entities and relationships
-    - **Do NOT write to mempalace during normal save rhythm.** Checkpoint/ledger files on disk serve verbatim storage. Mempalace is for search only.
+   - **Do NOT write to mempalace during normal save rhythm.** The checkpoint file on disk serves the human-readable verbatim fallback. Mempalace is for search only.
 
 3. **brain-router** — Unified memory router that auto-routes between structured facts and conversation history.
    - Use `brain-router_brain_query` for any memory lookup (auto-routes to the right store)
    - Use `brain-router_brain_save` to save structured facts with conflict detection
-   - Use `brain-router_brain_context` at session start to load context
+   - Use `brain-router_brain_context` only when you intentionally need a live structured-memory refresh inside the session
 
 **RULES:**
-- At session start: ALWAYS call `engram_mem_context` and `brain-router_brain_context` to restore context
+- At session start: rely on automatic startup restore when available; otherwise call `engram_mem_context` explicitly. Treat brain-router as a live lookup path, not mandatory startup ceremony.
 - Before working on known projects: ALWAYS search engram and mempalace for prior decisions and patterns
 - **MANDATORY CHECKPOINTS** (3 triggers — see orchestrator's Mandatory Memory Checkpoint Protocol):
-  - **C1 Pre-Compaction**: Save to `engram_mem_save` + ledger file before ANY compaction
+  - **C1 Pre-Compaction**: Save to `engram_mem_save` + `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` before ANY compaction
   - **C2 Post-Delegation**: Save specialist's key finding to `engram_mem_save` after notable results
   - **C3 Session-End**: Save full summary via `engram_mem_session_summary` + `brain-router_brain_save`
 - Mempalace is READ-ONLY — do not write to it during normal save rhythm
@@ -60,7 +60,7 @@ Keep memory entries easy to retrieve by project, topic, and date.
 - `Gist` = the shortest action-guiding representation: decision, constraint, route, or hypothesis.
 - `Detail` = the evidence needed to verify or challenge the gist: file paths, snippets, logs, timestamps, quoted text.
 - Save gist first, then attach only enough detail or references to reconstruct or falsify it later.
-- Engram and brain-router should prefer durable gist plus refs. Mempalace and on-disk ledgers remain the place to recover verbatim detail.
+- Engram and brain-router should prefer durable gist plus refs. Mempalace and the checkpoint file remain the place to recover verbatim detail.
 
 ## Conflict Resolution
 
@@ -71,7 +71,7 @@ Use this when retrieved memory, live repo evidence, and fresh research disagree.
 | 1 | Live repo evidence and fresh tool output | Current code, tests, diagnostics, runtime behavior |
 | 2 | Fresh official docs or fresh external research | Current truth for third-party APIs and services |
 | 3 | Structured memory (brain-router / engram) | Past decisions, patterns, bugfixes, session context |
-| 4 | Verbatim memory (mempalace, ledgers, notes) | Exact wording, historical detail, quoted context |
+| 4 | Verbatim memory (mempalace, checkpoint files, notes) | Exact wording, historical detail, quoted context |
 
 - Specialists may detect conflicts, but the orchestrator owns routing and final arbitration.
 - Prefer the highest-priority source that can be directly verified now.
@@ -82,7 +82,7 @@ Use this when retrieved memory, live repo evidence, and fresh research disagree.
 
 ## Session Rhythm
 
-- **Session start**: restore recent context, then search the active project explicitly
+- **Session start**: use automatic startup restore when available, then search the active project explicitly
 - **Mid-session**: save only at C1/C2 checkpoints or when a decision would be expensive to rediscover
 - **Session end**: write one durable summary keyed to project and date so the next session can resume without re-discovery
 

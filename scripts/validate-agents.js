@@ -16,6 +16,10 @@ const { runScenarioChecks } = require("./validate-reasoning-scenarios");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const OPENCODE_CONFIG = path.join(ROOT_DIR, "opencode.json");
+const MEMORY_PLUGIN_PATH = path.join(ROOT_DIR, ".opencode/plugins/memory-context-loader.js");
+const LEGACY_MEMORY_LOADER_PATH = path.join(ROOT_DIR, "hooks/memory-context-loader.js");
+const ROOT_README_PATH = path.join(ROOT_DIR, "README.md");
+const STANDARD_EXAMPLE_PATH = path.join(ROOT_DIR, "examples/standard.json");
 
 const colors = {
   green: "\x1b[32m",
@@ -246,6 +250,141 @@ function validateModelTiers(config) {
   return { label: "model tiers", errors, warnings };
 }
 
+function validateRuntimeMemorySurface(config) {
+  const errors = [];
+  const warnings = [];
+
+  for (const serverName of ["engram", "mempalace", "brain-router"]) {
+    if (!config.mcp?.[serverName]?.enabled) {
+      errors.push(`opencode.json missing enabled memory MCP server: ${serverName}`);
+    }
+  }
+
+  if (!fs.existsSync(MEMORY_PLUGIN_PATH)) {
+    errors.push("Missing project memory plugin: .opencode/plugins/memory-context-loader.js");
+  } else {
+    const content = fs.readFileSync(MEMORY_PLUGIN_PATH, "utf8");
+
+    if (!/experimental\.chat\.system\.transform/.test(content)) {
+      errors.push("Memory plugin missing experimental.chat.system.transform hook");
+    }
+
+    if (!/engram/.test(content) || !/mempalace-mempalace_search/.test(content)) {
+      errors.push("Memory plugin missing engram or mempalace startup restore path");
+    }
+  }
+
+  if (fs.existsSync(LEGACY_MEMORY_LOADER_PATH)) {
+    const legacy = fs.readFileSync(LEGACY_MEMORY_LOADER_PATH, "utf8");
+    if (/hooks\.memory_context_loader|PreToolUse hook/i.test(legacy)) {
+      errors.push("Legacy memory loader still advertises the unsupported hooks.memory_context_loader path");
+    }
+    if (!/Runtime startup memory now lives in \.opencode\/plugins\/memory-context-loader\.js/.test(legacy)) {
+      warnings.push("Legacy memory loader should point readers at the plugin-based runtime path");
+    }
+  }
+
+  return { label: "runtime memory startup", errors, warnings };
+}
+
+function validateProductSurfaces(config) {
+  const errors = [];
+  const warnings = [];
+
+  if (!fs.existsSync(ROOT_README_PATH)) {
+    errors.push("Missing root README.md");
+  } else {
+    const readme = fs.readFileSync(ROOT_README_PATH, "utf8");
+
+    if (/DEBATE MODE|council_session/i.test(readme)) {
+      errors.push("README.md still advertises stale council terminology");
+    }
+
+    if (!/Council Fan-Out Protocol|3-agent multi-LLM consensus protocol/i.test(readme)) {
+      warnings.push("README.md should explicitly describe council as a 3-agent fan-out protocol");
+    }
+  }
+
+  const memorySystems = readUtf8("agents/_shared/memory-systems.md");
+  if (/checkpoint\/ledger/i.test(memorySystems)) {
+    errors.push("shared memory systems still use checkpoint/ledger hybrid wording");
+  }
+
+  if (/Use `brain-router_brain_context` at session start/i.test(memorySystems)
+    || /At session start:\s*ALWAYS call `engram_mem_context` and `brain-router_brain_context`/i.test(memorySystems)) {
+    errors.push("shared memory systems still require startup brain-router context calls");
+  }
+
+  if (!/automatic startup restore/i.test(memorySystems) || !/live lookup path/i.test(memorySystems)) {
+    warnings.push("shared memory systems should distinguish automatic startup restore from live brain-router lookups");
+  }
+
+  const compactorSkill = readUtf8("skills/compactor/SKILL.md");
+  if (/checkpoint\/ledger/i.test(compactorSkill)) {
+    errors.push("compactor skill still uses checkpoint/ledger hybrid wording");
+  }
+
+  if (!fs.existsSync(STANDARD_EXAMPLE_PATH)) {
+    errors.push("Missing examples/standard.json");
+    return { label: "product surfaces", errors, warnings };
+  }
+
+  let standardExample;
+  try {
+    standardExample = JSON.parse(fs.readFileSync(STANDARD_EXAMPLE_PATH, "utf8"));
+  } catch (error) {
+    errors.push(`Failed to parse examples/standard.json: ${error.message}`);
+    return { label: "product surfaces", errors, warnings };
+  }
+
+  const expectedAgents = config.agent || {};
+  const exampleAgents = standardExample.agent || {};
+  for (const [agentName, expected] of Object.entries(expectedAgents)) {
+    const exampleEntry = exampleAgents[agentName];
+    if (!exampleEntry) {
+      errors.push(`examples/standard.json missing agent entry: ${agentName}`);
+      continue;
+    }
+
+    if (exampleEntry.mode !== expected.mode) {
+      errors.push(`examples/standard.json ${agentName} mode should be ${expected.mode}`);
+    }
+
+    if (exampleEntry.prompt_file !== expected.prompt_file) {
+      errors.push(`examples/standard.json ${agentName} prompt_file should be ${expected.prompt_file}`);
+    }
+
+    if (expected.model && exampleEntry.model !== expected.model) {
+      errors.push(`examples/standard.json ${agentName} model should be ${expected.model}`);
+    }
+  }
+
+  for (const agentName of Object.keys(exampleAgents)) {
+    if (!expectedAgents[agentName]) {
+      warnings.push(`examples/standard.json includes unrecognized agent entry: ${agentName}`);
+    }
+  }
+
+  const expectedModels = config.models || {};
+  const exampleModels = standardExample.models || {};
+  for (const [tierName, expectedValue] of Object.entries(expectedModels)) {
+    if (!(tierName in exampleModels)) {
+      errors.push(`examples/standard.json missing model tier alias: ${tierName}`);
+      continue;
+    }
+
+    if (exampleModels[tierName] !== expectedValue) {
+      errors.push(`examples/standard.json ${tierName} tier should be ${expectedValue}`);
+    }
+  }
+
+  if (standardExample.provider?.openrouter?.options?.apiKey !== "YOUR_OPENROUTER_KEY") {
+    warnings.push("examples/standard.json should keep the YOUR_OPENROUTER_KEY placeholder");
+  }
+
+  return { label: "product surfaces", errors, warnings };
+}
+
 function validateOrchestratorReferences(config) {
   const content = readUtf8("agents/orchestrator.md");
   const errors = [];
@@ -308,13 +447,15 @@ function main() {
   const sourceResults = validateSourcePrompts();
   const registryResults = configErrors.length > 0
     ? [{ label: "opencode.json", errors: configErrors, warnings: [] }]
-    : [validateRegistry(config), validateModelTiers(config), validateOrchestratorReferences(config)];
+    : [validateRegistry(config), validateModelTiers(config), validateRuntimeMemorySurface(config), validateOrchestratorReferences(config)];
+  const productResults = configErrors.length > 0 ? [] : [validateProductSurfaces(config)];
   const generatedResults = [validateGeneratedPrompts(entries)];
   const scenarioResults = validateReasoningScenarios();
 
   printResults("Shared Blocks", sharedResults);
   printResults("Source Prompts", sourceResults);
   printResults("Registry", registryResults);
+  printResults("Product Surfaces", productResults);
   printResults("Generated Prompts", generatedResults);
   printResults("Reasoning Scenarios", scenarioResults);
 
@@ -322,6 +463,7 @@ function main() {
     ...sharedResults,
     ...sourceResults,
     ...registryResults,
+    ...productResults,
     ...generatedResults,
     ...scenarioResults,
   ];

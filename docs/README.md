@@ -22,7 +22,7 @@ Detailed documentation for the agent orchestration system.
 | **researcher** | External research with source hierarchy (Tier 1-3) |
 | **designer** | UI/UX with intentional minimalism philosophy |
 | **auditor** | Debug, review, improve, fix (READ/FIX/REFINE modes) |
-| **council** | Multi-LLM consensus + DEBATE MODE for structured idea evaluation |
+| **council** | True multi-LLM consensus via orchestrator fan-out to 3 councillor agents |
 | **generalist** | Plan executor, medium tasks, file safety (backup/verify/revert) |
 
 ## Sources of Truth

@@ -82,7 +82,7 @@ Frontend UI/UX specialist for intentional, polished experiences.
 
 ### @auditor (Debugging & Implementation)
 
-Dual-mode agent: READ MODE for auditing/reviewing, FIX MODE for implementing changes.
+Triple-mode agent: READ MODE for auditing/reviewing, FIX MODE for implementing changes, REFINE MODE for conservative pattern-based improvements.
 
 **READ MODE:**
 - Code review with correctness, performance, maintainability checks
@@ -104,7 +104,7 @@ Dual-mode agent: READ MODE for auditing/reviewing, FIX MODE for implementing cha
 
 ### @council (Multi-LLM Consensus)
 
-Runs consensus across multiple models for high-stakes decisions.
+Runs a true multi-model consensus protocol for high-stakes decisions. The orchestrator fans out to 3 separate councillor agents and synthesizes the verdict.
 
 **When to use:**
 - Critical architectural choices where wrong choice is costly
@@ -115,6 +115,11 @@ Runs consensus across multiple models for high-stakes decisions.
 - Routine decisions (use @strategist LITE)
 - Simple implementation tasks
 - When speed matters more than confidence
+
+**How it works:**
+1. Orchestrator builds one shared briefing with context, constraints, and memory.
+2. It fans out to `@council-advocate-for`, `@council-advocate-against`, and `@council-judge`.
+3. It returns a synthesized verdict: `PROCEED`, `PROCEED WITH CAVEATS`, `REJECT`, or `NEEDS MORE DATA`.
 
 **Example prompts:**
 - "Should we use microservices or monolith for this project?"
@@ -183,7 +188,7 @@ The orchestrator detects sequential language and chains agents automatically.
 **Chain rules:**
 - Max depth: 4 agents
 - Recovery: retry once → escalate → pause for user input
-- State saved to ledger before pausing
+- State saved to the session checkpoint before pausing
 - Resumes from last completed step
 
 ## Configuring Council for True Multi-LLM Consensus
@@ -215,4 +220,4 @@ One free API key gives access to 3 reasoning models with native chain-of-thought
 
 ### Option B: Single Provider (Default — Works Out of the Box)
 
-Council runs in DEBATE MODE with a single model — still valuable for structured idea evaluation. Use `examples/standard.json` or `examples/minimal.json`.
+Without the 3 councillor models, the orchestrator falls back to `@strategist` for multi-perspective evaluation. Use `examples/standard.json` or `examples/minimal.json` when you want the rest of the 8-agent system without true council fan-out.

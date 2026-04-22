@@ -17,6 +17,7 @@ function scenario(label, checks) {
 function runScenarioChecks() {
   const orchestrator = read("agents/orchestrator.md");
   const cognitiveKernel = read("agents/_shared/cognitive-kernel.md");
+  const memoryPlugin = read(".opencode/plugins/memory-context-loader.js");
   const specialists = [
     "explorer.md",
     "strategist.md",
@@ -95,6 +96,20 @@ function runScenarioChecks() {
       {
         pass: /memory arbitration/i.test(orchestrator),
         message: "orchestrator missing memory arbitration ownership",
+      },
+    ]),
+    scenario("startup memory runtime surface", [
+      {
+        pass: /experimental\.chat\.system\.transform/.test(memoryPlugin),
+        message: "startup memory plugin missing system-transform hook",
+      },
+      {
+        pass: /engram/.test(memoryPlugin) && /mempalace-mempalace_search/.test(memoryPlugin),
+        message: "startup memory plugin missing engram or mempalace restore path",
+      },
+      {
+        pass: /brain-router MCP tools live/i.test(memoryPlugin),
+        message: "startup memory plugin missing explicit brain-router live-lookup fallback",
       },
     ]),
     scenario("delegation packet metadata", [

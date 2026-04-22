@@ -19,10 +19,11 @@ Every core agent uses the same fast/slow reasoning contract so routing, memory u
 - Reopen intent only on explicit user correction, materially new evidence, or verification showing the current deliverable would miss the user's stated goal.
 
 ### 3. Memory Preflight
-- Session start: restore context with `engram_mem_context` and `brain-router_brain_context`.
+- Session start: use automatic startup restore when available; if you need a manual refresh, call `engram_mem_context` explicitly.
 - Before non-trivial work: query `brain-router_brain_query` first.
 - If the task touches a known project, recurring bug, or past decision: follow with `engram_mem_search`.
 - Use `mempalace_mempalace_search` only when semantic or verbatim recall is needed.
+- Treat `brain-router_brain_context` as an on-demand structured-memory refresh, not mandatory startup ceremony.
 - If retrieved memory conflicts with live repo evidence or fresh tool output, follow the shared precedence rules in `agents/_shared/memory-systems.md` instead of inventing a local rule.
 
 ### 4. Fast Mode (default)

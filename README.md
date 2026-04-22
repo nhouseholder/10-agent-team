@@ -12,7 +12,7 @@ A multi-agent coding orchestration system for OpenCode. An **orchestrator** rout
 | **researcher** | External docs & research | "How does this library work?", "Find best practices" |
 | **designer** | UI/UX implementation | "Build a dashboard", "Improve this component" |
 | **auditor** | Debug, review, improve, fix | "Fix this bug", "Improve this", "Review this code" |
-| **council** | Multi-LLM consensus & debate | "What's the best approach?", "Should we...?" |
+| **council** | 3-agent multi-LLM consensus protocol | "What's the best approach?", "Should we...?" |
 | **generalist** | Plan executor, medium tasks | "Execute this plan", "Update these configs", "Refactor" |
 
 ## How It Works
@@ -77,7 +77,7 @@ The repo `opencode.json` uses a placeholder. You need your own key:
 - **Shared Cognitive Kernel** — every core agent defaults to fast mode and escalates to slow mode only when ambiguity, risk, or failures justify it
 - **Prompt Enhancement Protocol** — silently clarifies vague prompts (1-2 questions max)
 - **Multi-Agent Chains** — sequential requests execute automatically, max depth 4
-- **Council DEBATE MODE** — structured idea evaluation (advocate for/against → judge → verdict)
+- **Council Fan-Out Protocol** — structured idea arbitration via advocate-for, advocate-against, and judge on distinct models
 - **Chain Recovery** — failed steps retry, escalate, or pause for user input
 - **Persistent Memory** — three MCP memory systems survive across sessions
 - **Validation** — `scripts/validate-agents.js` checks source markers, generated prompt freshness, registry wiring, and reasoning-scenario integrity
@@ -92,7 +92,7 @@ agents/
 ├── researcher.md        # Source prompt: external research with source hierarchy
 ├── designer.md          # Source prompt: UI/UX with intentional minimalism
 ├── auditor.md           # Source prompt: debug, review, improve, fix (READ/FIX/REFINE modes)
-├── council.md           # Source prompt: multi-LLM consensus + DEBATE MODE
+├── council.md           # Source prompt: council protocol reference for 3-agent fan-out
 ├── generalist.md        # Source prompt: plan executor, bounded implementation, verification discipline
 ├── generated/           # Runtime prompts produced by scripts/compose-prompts.js
 │   ├── orchestrator.md
@@ -121,6 +121,7 @@ The system uses a Kahneman-style fast/slow operating contract across the full 8-
 - **Memory preflight** happens before non-trivial work so agents reuse prior decisions instead of rediscovering them
 - **Anti-WYSIATI and conflict checks** run before high-confidence completion on ambiguous or high-stakes work
 - **Council** is the expensive slow path for genuinely high-stakes decisions, not routine planning
+- **Council** fans out to 3 distinct councillor agents; it is a protocol, not a single-agent roleplay mode
 - **Fast and slow are control modes, not value judgments** — fast is not automatically biased, and slow is not automatically better
 
 ## Sources of Truth

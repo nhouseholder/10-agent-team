@@ -80,9 +80,9 @@ This is the most critical save. Compaction is unpredictable and system-triggered
    topic_key: "session/[project]"
    ```
 
-2. Ledger file on disk (existing protocol) — `thoughts/ledgers/CONTINUITY_*.md`
+2. Checkpoint file on disk (existing protocol) — `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md`
 
-**Why both:** engram survives across sessions and is machine-searchable. The ledger file is a human-readable backup that the generalist can re-read post-compaction.
+**Why both:** engram survives across sessions and is machine-searchable. The checkpoint file is a human-readable backup that the generalist can re-read post-compaction.
 
 #### C2: Post-Delegation Checkpoint (MANDATORY after specialist returns)
 
@@ -122,7 +122,7 @@ When the user signals they're done, or when handing off:
 - C1 is non-negotiable. If you detect compaction approaching, save FIRST.
 - C2 fires after EVERY delegation that produces a notable result. No exceptions.
 - C3 fires at session end. If the user ends abruptly, C1 + C2 coverage should be sufficient.
-- If memory systems are unavailable: save to ledger file on disk as fallback.
+- If memory systems are unavailable: save to the checkpoint file on disk as fallback.
 
 ## Prompt Enhancement Protocol (Step 0 — runs before decision tree)
 
@@ -377,13 +377,13 @@ Clear-scope implementation beats meta-analysis. If the deliverable is concrete, 
 
 | Signal | Route | Why |
 |---|---|---|
-| Binary choice with real trade-offs ("A or B?", "should we rewrite in Rust?") | @council (DEBATE MODE) | Competing paths need multi-perspective |
-| High-stakes, irreversible decision (rewrite, migration, schema change) | @council → then @strategist (plan the winner) | Debate first, then plan |
+| Binary choice with real trade-offs ("A or B?", "should we rewrite in Rust?") | @council (3-agent fan-out) | Competing paths need multi-perspective arbitration |
+| High-stakes, irreversible decision (rewrite, migration, schema change) | @council → then @strategist (plan the winner) | Arbitrate first, then plan |
 | "What if we X?" exploring feasibility | @strategist (FULL mode) | One deep analysis, not three opinions |
 | "I have an idea for X" — feature proposal | @strategist (FULL mode) | Needs spec/plan, not debate |
 | "How should we handle X?" — open-ended design | @strategist (propose 2-3 approaches) | Strategist proposes options internally |
 | "Is X a good idea?" — low-stakes validation | @strategist (LITE mode) | Quick assessment, not worth 3 models |
-| "Is X a good idea?" — high-stakes validation | @council (DEBATE MODE) | Irreversible or expensive if wrong |
+| "Is X a good idea?" — high-stakes validation | @council (3-agent fan-out) | Irreversible or expensive if wrong |
 
 **Rule:** If the idea has 2+ viable paths with genuine disagreement → council. If it needs one deep think or a plan → strategist. When in doubt, strategist is the default — council is reserved for decisions where being wrong is costly.
 
@@ -467,9 +467,9 @@ When a request requires multiple agents sequentially (e.g., "audit then brainsto
 **Why this exists:** OpenCode assigns one model per agent. A single "council" agent running one model is just role-playing — not true multi-LLM consensus. To get genuine diverse reasoning, the **orchestrator** fans out to 3 separate agents, each running a different model with a different training distribution.
 
 ### When to Trigger
-- "Should we...", "what if...", proposing an idea → **DEBATE MODE**
-- "What's the best approach?", ambiguous high-stakes choice → **CONSENSUS MODE**
-- Debugging failed 3+ times → **CONSENSUS MODE** (fresh perspectives)
+- "Should we...", "what if...", or any proposal with genuine trade-offs → **trade-off arbitration**
+- "What's the best approach?", ambiguous high-stakes choice → **consensus arbitration**
+- Debugging failed 3+ times → **consensus arbitration** (fresh perspectives)
 
 ### The 3 Councillors
 

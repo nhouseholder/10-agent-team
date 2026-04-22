@@ -2,6 +2,8 @@
 
 All notable changes to the Agent Orchestration System.
 
+> Historical note: release entries describe the architecture that existed at the time. For the current runtime surface, treat `opencode.json`, `agents/*.md`, and `README.md` as source of truth.
+
 - Added a build-time prompt composition pipeline that generates `agents/generated/*.md` and `agents/generated/manifest.json`
 - Added shared `completion-gate.md` and `council-kernel.md` runtime modules
 - Switched `opencode.json` to execute generated prompts instead of raw source prompts

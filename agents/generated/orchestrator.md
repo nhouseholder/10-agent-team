@@ -35,10 +35,11 @@ Every core agent uses the same fast/slow reasoning contract so routing, memory u
 - Reopen intent only on explicit user correction, materially new evidence, or verification showing the current deliverable would miss the user's stated goal.
 
 ### 3. Memory Preflight
-- Session start: restore context with `engram_mem_context` and `brain-router_brain_context`.
+- Session start: use automatic startup restore when available; if you need a manual refresh, call `engram_mem_context` explicitly.
 - Before non-trivial work: query `brain-router_brain_query` first.
 - If the task touches a known project, recurring bug, or past decision: follow with `engram_mem_search`.
 - Use `mempalace_mempalace_search` only when semantic or verbatim recall is needed.
+- Treat `brain-router_brain_context` as an on-demand structured-memory refresh, not mandatory startup ceremony.
 - If retrieved memory conflicts with live repo evidence or fresh tool output, follow the shared precedence rules in `agents/_shared/memory-systems.md` instead of inventing a local rule.
 
 ### 4. Fast Mode (default)
@@ -103,7 +104,7 @@ You have access to three persistent memory systems via MCP tools:
 
 1. **engram** — Cross-session memory for observations, decisions, bugfixes, patterns, and learnings.
    - Use `engram_mem_search` to find past decisions, bugs fixed, patterns, or context from previous sessions
-   - Use `engram_mem_context` to get recent memory context at session start
+   - Use `engram_mem_context` when you need an explicit recent-context refresh beyond the automatic startup restore
    - Use `engram_mem_save` to save important observations (decisions, architecture, bugfixes, patterns)
    - Use `engram_mem_timeline` to understand chronological context around an observation
    - ALWAYS search engram before starting work on a project you've touched before
@@ -113,18 +114,18 @@ You have access to three persistent memory systems via MCP tools:
     - Use `mempalace_mempalace_list_wings` and `mempalace_mempalace_list_rooms` to explore structure
     - Use `mempalace_mempalace_traverse` to follow cross-wing connections between related topics
     - Use `mempalace_mempalace_kg_query` for knowledge graph queries about entities and relationships
-    - **Do NOT write to mempalace during normal save rhythm.** Checkpoint/ledger files on disk serve verbatim storage. Mempalace is for search only.
+   - **Do NOT write to mempalace during normal save rhythm.** The checkpoint file on disk serves the human-readable verbatim fallback. Mempalace is for search only.
 
 3. **brain-router** — Unified memory router that auto-routes between structured facts and conversation history.
    - Use `brain-router_brain_query` for any memory lookup (auto-routes to the right store)
    - Use `brain-router_brain_save` to save structured facts with conflict detection
-   - Use `brain-router_brain_context` at session start to load context
+   - Use `brain-router_brain_context` only when you intentionally need a live structured-memory refresh inside the session
 
 **RULES:**
-- At session start: ALWAYS call `engram_mem_context` and `brain-router_brain_context` to restore context
+- At session start: rely on automatic startup restore when available; otherwise call `engram_mem_context` explicitly. Treat brain-router as a live lookup path, not mandatory startup ceremony.
 - Before working on known projects: ALWAYS search engram and mempalace for prior decisions and patterns
 - **MANDATORY CHECKPOINTS** (3 triggers — see orchestrator's Mandatory Memory Checkpoint Protocol):
-  - **C1 Pre-Compaction**: Save to `engram_mem_save` + ledger file before ANY compaction
+  - **C1 Pre-Compaction**: Save to `engram_mem_save` + `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md` before ANY compaction
   - **C2 Post-Delegation**: Save specialist's key finding to `engram_mem_save` after notable results
   - **C3 Session-End**: Save full summary via `engram_mem_session_summary` + `brain-router_brain_save`
 - Mempalace is READ-ONLY — do not write to it during normal save rhythm
@@ -159,7 +160,7 @@ Keep memory entries easy to retrieve by project, topic, and date.
 - `Gist` = the shortest action-guiding representation: decision, constraint, route, or hypothesis.
 - `Detail` = the evidence needed to verify or challenge the gist: file paths, snippets, logs, timestamps, quoted text.
 - Save gist first, then attach only enough detail or references to reconstruct or falsify it later.
-- Engram and brain-router should prefer durable gist plus refs. Mempalace and on-disk ledgers remain the place to recover verbatim detail.
+- Engram and brain-router should prefer durable gist plus refs. Mempalace and the checkpoint file remain the place to recover verbatim detail.
 
 ## Conflict Resolution
 
@@ -170,7 +171,7 @@ Use this when retrieved memory, live repo evidence, and fresh research disagree.
 | 1 | Live repo evidence and fresh tool output | Current code, tests, diagnostics, runtime behavior |
 | 2 | Fresh official docs or fresh external research | Current truth for third-party APIs and services |
 | 3 | Structured memory (brain-router / engram) | Past decisions, patterns, bugfixes, session context |
-| 4 | Verbatim memory (mempalace, ledgers, notes) | Exact wording, historical detail, quoted context |
+| 4 | Verbatim memory (mempalace, checkpoint files, notes) | Exact wording, historical detail, quoted context |
 
 - Specialists may detect conflicts, but the orchestrator owns routing and final arbitration.
 - Prefer the highest-priority source that can be directly verified now.
@@ -181,7 +182,7 @@ Use this when retrieved memory, live repo evidence, and fresh research disagree.
 
 ## Session Rhythm
 
-- **Session start**: restore recent context, then search the active project explicitly
+- **Session start**: use automatic startup restore when available, then search the active project explicitly
 - **Mid-session**: save only at C1/C2 checkpoints or when a decision would be expensive to rediscover
 - **Session end**: write one durable summary keyed to project and date so the next session can resume without re-discovery
 
@@ -287,9 +288,9 @@ This is the most critical save. Compaction is unpredictable and system-triggered
    topic_key: "session/[project]"
    ```
 
-2. Ledger file on disk (existing protocol) — `thoughts/ledgers/CONTINUITY_*.md`
+2. Checkpoint file on disk (existing protocol) — `~/.claude/projects/<project>/memory/pre_compact_checkpoint.md`
 
-**Why both:** engram survives across sessions and is machine-searchable. The ledger file is a human-readable backup that the generalist can re-read post-compaction.
+**Why both:** engram survives across sessions and is machine-searchable. The checkpoint file is a human-readable backup that the generalist can re-read post-compaction.
 
 #### C2: Post-Delegation Checkpoint (MANDATORY after specialist returns)
 
@@ -329,7 +330,7 @@ When the user signals they're done, or when handing off:
 - C1 is non-negotiable. If you detect compaction approaching, save FIRST.
 - C2 fires after EVERY delegation that produces a notable result. No exceptions.
 - C3 fires at session end. If the user ends abruptly, C1 + C2 coverage should be sufficient.
-- If memory systems are unavailable: save to ledger file on disk as fallback.
+- If memory systems are unavailable: save to the checkpoint file on disk as fallback.
 
 ## Prompt Enhancement Protocol (Step 0 — runs before decision tree)
 
@@ -584,13 +585,13 @@ Clear-scope implementation beats meta-analysis. If the deliverable is concrete, 
 
 | Signal | Route | Why |
 |---|---|---|
-| Binary choice with real trade-offs ("A or B?", "should we rewrite in Rust?") | @council (DEBATE MODE) | Competing paths need multi-perspective |
-| High-stakes, irreversible decision (rewrite, migration, schema change) | @council → then @strategist (plan the winner) | Debate first, then plan |
+| Binary choice with real trade-offs ("A or B?", "should we rewrite in Rust?") | @council (3-agent fan-out) | Competing paths need multi-perspective arbitration |
+| High-stakes, irreversible decision (rewrite, migration, schema change) | @council → then @strategist (plan the winner) | Arbitrate first, then plan |
 | "What if we X?" exploring feasibility | @strategist (FULL mode) | One deep analysis, not three opinions |
 | "I have an idea for X" — feature proposal | @strategist (FULL mode) | Needs spec/plan, not debate |
 | "How should we handle X?" — open-ended design | @strategist (propose 2-3 approaches) | Strategist proposes options internally |
 | "Is X a good idea?" — low-stakes validation | @strategist (LITE mode) | Quick assessment, not worth 3 models |
-| "Is X a good idea?" — high-stakes validation | @council (DEBATE MODE) | Irreversible or expensive if wrong |
+| "Is X a good idea?" — high-stakes validation | @council (3-agent fan-out) | Irreversible or expensive if wrong |
 
 **Rule:** If the idea has 2+ viable paths with genuine disagreement → council. If it needs one deep think or a plan → strategist. When in doubt, strategist is the default — council is reserved for decisions where being wrong is costly.
 
@@ -674,9 +675,9 @@ When a request requires multiple agents sequentially (e.g., "audit then brainsto
 **Why this exists:** OpenCode assigns one model per agent. A single "council" agent running one model is just role-playing — not true multi-LLM consensus. To get genuine diverse reasoning, the **orchestrator** fans out to 3 separate agents, each running a different model with a different training distribution.
 
 ### When to Trigger
-- "Should we...", "what if...", proposing an idea → **DEBATE MODE**
-- "What's the best approach?", ambiguous high-stakes choice → **CONSENSUS MODE**
-- Debugging failed 3+ times → **CONSENSUS MODE** (fresh perspectives)
+- "Should we...", "what if...", or any proposal with genuine trade-offs → **trade-off arbitration**
+- "What's the best approach?", ambiguous high-stakes choice → **consensus arbitration**
+- Debugging failed 3+ times → **consensus arbitration** (fresh perspectives)
 
 ### The 3 Councillors
 
