@@ -120,10 +120,30 @@ function composePrompt(filename) {
   };
 }
 
-function buildEntries() {
+function buildEntries(agentFilter = null) {
   return Object.keys(SOURCE_PROMPTS)
     .sort()
+    .filter((filename) => !agentFilter || filename === `${agentFilter}.md`)
     .map((filename) => composePrompt(filename));
+}
+
+function needsRegeneration(entry) {
+  const generatedPath = path.join(ROOT_DIR, entry.generated);
+  if (!fs.existsSync(generatedPath)) return true;
+
+  const genMtime = fs.statSync(generatedPath).mtimeMs;
+
+  // Check source file
+  const sourcePath = path.join(ROOT_DIR, entry.source);
+  if (fs.statSync(sourcePath).mtimeMs > genMtime) return true;
+
+  // Check shared block dependencies
+  for (const marker of entry.markers) {
+    const blockPath = SHARED_BLOCKS[marker];
+    if (fs.statSync(path.join(ROOT_DIR, blockPath)).mtimeMs > genMtime) return true;
+  }
+
+  return false;
 }
 
 function buildManifest(entries) {
@@ -144,13 +164,17 @@ function buildManifest(entries) {
 function writeOutputs(entries) {
   fs.mkdirSync(GENERATED_DIR, { recursive: true });
 
+  let rebuilt = 0;
   for (const entry of entries) {
+    if (!needsRegeneration(entry)) continue;
     fs.writeFileSync(path.join(ROOT_DIR, entry.generated), `${entry.output.trimEnd()}\n`, "utf8");
+    rebuilt++;
   }
 
+  // Always rebuild manifest (it references all entries)
   const manifest = buildManifest(entries);
   fs.writeFileSync(MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-  return manifest;
+  return { manifest, rebuilt, total: entries.length };
 }
 
 function readManifest() {
@@ -188,13 +212,25 @@ function checkOutputs(entries) {
   return issues;
 }
 
+function parseArgs(argv) {
+  const args = { checkOnly: false, agent: null };
+  for (const arg of argv.slice(2)) {
+    if (arg === "--check") {
+      args.checkOnly = true;
+    } else if (arg.startsWith("--agent=")) {
+      args.agent = arg.slice("--agent=".length);
+    }
+  }
+  return args;
+}
+
 function main() {
-  const checkOnly = process.argv.includes("--check");
+  const args = parseArgs(process.argv);
 
   try {
-    const entries = buildEntries();
+    const entries = buildEntries(args.agent || null);
 
-    if (checkOnly) {
+    if (args.checkOnly) {
       const issues = checkOutputs(entries);
       if (issues.length > 0) {
         for (const issue of issues) {
@@ -207,8 +243,18 @@ function main() {
       return;
     }
 
-    writeOutputs(entries);
-    console.log(`Generated ${entries.length} prompts in ${path.relative(ROOT_DIR, GENERATED_DIR)}.`);
+    const { rebuilt, total } = writeOutputs(entries);
+    const fresh = total - rebuilt;
+
+    if (args.agent) {
+      console.log(`Generated 1 prompt in ${path.relative(ROOT_DIR, GENERATED_DIR)} (--agent=${args.agent}).`);
+    } else if (rebuilt === 0) {
+      console.log(`All ${total} prompts already fresh in ${path.relative(ROOT_DIR, GENERATED_DIR)}.`);
+    } else if (fresh > 0) {
+      console.log(`Regenerated ${rebuilt}/${total} prompts in ${path.relative(ROOT_DIR, GENERATED_DIR)} (${fresh} already fresh).`);
+    } else {
+      console.log(`Generated ${rebuilt} prompts in ${path.relative(ROOT_DIR, GENERATED_DIR)}.`);
+    }
   } catch (error) {
     console.error(error.message);
     process.exit(1);

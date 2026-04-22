@@ -10,6 +10,18 @@ All notable changes to the Agent Orchestration System.
 - Rebuilt `scripts/validate-agents.js` to check composition markers, generated prompt freshness, registry wiring, and reasoning scenarios
 ## [Unreleased]
 
+## [1.7.0] - 2026-04-21
+
+### Added
+- Scoped validation: `scripts/validate-agents.js --agent=<name> --check=<type>` for <200ms iteration
+- Incremental prompt generation: `scripts/compose-prompts.js` rebuilds only changed prompts via mtime
+- Council Gate: multi-model consensus now triggers only on explicit request, irreversible decisions, or high-stakes competing paths
+- Strategist Devil's Advocate mode for low-stakes "should we" questions
+
+### Changed
+- Renamed 10 skills in `~/.config/opencode/skills/` to disambiguate from agents (designer→ui-design-system, strategist→planning-kit, etc.)
+- Version bumps: opencode.json, examples/*.json all updated to 1.7.0
+
 ## [1.6.1] - 2026-04-21
 
 ### Fixed

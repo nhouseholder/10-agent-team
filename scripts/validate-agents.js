@@ -449,27 +449,84 @@ function sum(results, key) {
   return results.reduce((count, result) => count + result[key].length, 0);
 }
 
+function parseArgs(argv) {
+  const args = { agent: null, check: null, quiet: false };
+  for (const arg of argv.slice(2)) {
+    if (arg.startsWith("--agent=")) {
+      args.agent = arg.slice("--agent=".length);
+    } else if (arg.startsWith("--check=")) {
+      args.check = arg.slice("--check=".length);
+    } else if (arg === "--quiet") {
+      args.quiet = true;
+    }
+  }
+  return args;
+}
+
 function main() {
-  console.log(bold("\n=== Agent Surface Validation ===\n"));
+  const args = parseArgs(process.argv);
+  const checkGroups = args.check ? new Set(args.check.split(",")) : null;
+  const runCheck = (name) => !checkGroups || checkGroups.has(name) || checkGroups.has("all");
+
+  if (!args.quiet) {
+    console.log(bold("\n=== Agent Surface Validation ===\n"));
+    if (args.agent) console.log(info(`  Scope: agent=${args.agent}`));
+    if (args.check) console.log(info(`  Scope: check=${args.check}`));
+  }
 
   const { config, errors: configErrors } = loadOpencodeConfig();
-  const entries = buildEntries();
+  const entries = buildEntries(args.agent || null);
 
-  const sharedResults = [validateSharedBlocks()];
-  const sourceResults = validateSourcePrompts();
-  const registryResults = configErrors.length > 0
-    ? [{ label: "opencode.json", errors: configErrors, warnings: [] }]
-    : [validateRegistry(config), validateModelConfiguration(config), validateRuntimeMemorySurface(config), validateOrchestratorReferences(config)];
-  const productResults = configErrors.length > 0 ? [] : [validateProductSurfaces(config)];
-  const generatedResults = [validateGeneratedPrompts(entries)];
-  const scenarioResults = validateReasoningScenarios();
+  let sharedResults = [];
+  let sourceResults = [];
+  let registryResults = [];
+  let productResults = [];
+  let generatedResults = [];
+  let scenarioResults = [];
 
-  printResults("Shared Blocks", sharedResults);
-  printResults("Source Prompts", sourceResults);
-  printResults("Registry", registryResults);
-  printResults("Product Surfaces", productResults);
-  printResults("Generated Prompts", generatedResults);
-  printResults("Reasoning Scenarios", scenarioResults);
+  if (runCheck("shared") || runCheck("source") || runCheck("all")) {
+    sharedResults = [validateSharedBlocks()];
+  }
+
+  if (runCheck("source") || runCheck("all")) {
+    if (args.agent) {
+      const agentFile = `${args.agent}.md`;
+      if (SOURCE_PROMPTS[agentFile]) {
+        sourceResults = [validateSourcePrompt(agentFile, SOURCE_PROMPTS[agentFile].schema)];
+      } else {
+        sourceResults = [{ label: agentFile, errors: [`Unknown agent: ${args.agent}`], warnings: [] }];
+      }
+    } else {
+      sourceResults = validateSourcePrompts();
+    }
+  }
+
+  if (runCheck("registry") || runCheck("all")) {
+    registryResults = configErrors.length > 0
+      ? [{ label: "opencode.json", errors: configErrors, warnings: [] }]
+      : [validateRegistry(config), validateModelConfiguration(config), validateRuntimeMemorySurface(config), validateOrchestratorReferences(config)];
+  }
+
+  if (runCheck("product") || runCheck("all")) {
+    productResults = configErrors.length > 0 ? [] : [validateProductSurfaces(config)];
+  }
+
+  if (runCheck("generated") || runCheck("all")) {
+    generatedResults = [validateGeneratedPrompts(entries)];
+  }
+
+  if (runCheck("scenarios") || runCheck("all")) {
+    scenarioResults = validateReasoningScenarios();
+  }
+
+  if (!args.quiet) {
+    if (sharedResults.length) printResults("Shared Blocks", sharedResults);
+    if (sourceResults.length) printResults("Source Prompts", sourceResults);
+    if (registryResults.length) printResults("Registry", registryResults);
+    if (productResults.length) printResults("Product Surfaces", productResults);
+    if (generatedResults.length) printResults("Generated Prompts", generatedResults);
+    if (scenarioResults.length) printResults("Reasoning Scenarios", scenarioResults);
+  }
 
   const allResults = [
     ...sharedResults,
@@ -484,7 +541,10 @@ function main() {
   const totalWarnings = sum(allResults, "warnings");
 
   console.log(`\n${bold("=== Summary ===")}`);
-  console.log(`  Source prompts:    ${info(String(sourceResults.length))}`);
+  if (args.agent || args.check) {
+    console.log(`  Scope:             ${info(args.agent || args.check || "all")}`);
+  }
+  console.log(`  Source prompts:    ${info(String(sourceResults.length || Object.keys(SOURCE_PROMPTS).length))}`);
   console.log(`  Generated prompts: ${info(String(entries.length))}`);
   console.log(`  Errors:            ${totalErrors === 0 ? pass("0") : fail(String(totalErrors))}`);
   console.log(`  Warnings:          ${totalWarnings === 0 ? "0" : warn(String(totalWarnings))}`);

@@ -363,7 +363,7 @@ When receiving a request, classify it using this decision tree:
 9. **Does it need external research/docs?** → @researcher
 10. **Does it need UI/UX polish?** → @designer
 11. **Does it need debugging/audit/review on a bounded, already-localized surface?** → @auditor
-12. **Does it need multi-model consensus?** → Council Fan-Out Protocol (3 separate LLMs)
+12. **Does it meet the Council Gate?** (explicit request, irreversible, or high-stakes + competing paths) → Council Fan-Out Protocol. Otherwise → @strategist (DA or LITE mode)
 13. **Is it a cosmetic edit or trivial lookup?** → Do it yourself
 
 14. **Is it writing tests for existing code?** → @auditor (test writing is QA)
@@ -384,15 +384,33 @@ Clear-scope implementation beats meta-analysis. If the deliverable is concrete, 
 
 | Signal | Route | Why |
 |---|---|---|
-| Binary choice with real trade-offs ("A or B?", "should we rewrite in Rust?") | @council (3-agent fan-out) | Competing paths need multi-perspective arbitration |
-| High-stakes, irreversible decision (rewrite, migration, schema change) | @council → then @strategist (plan the winner) | Arbitrate first, then plan |
+| User explicitly says "use council", "fan out", or "multi-model" | @council (3-agent fan-out) | Explicit request overrides default gating |
+| Irreversible decision (data migration, schema change, framework rewrite) | @council → then @strategist (plan the winner) | Being wrong is permanently costly |
+| High-stakes + 2+ genuinely competing paths ("rewrite in Rust or stay in Python?") | @council (3-agent fan-out) | Needs independent multi-perspective arbitration |
 | "What if we X?" exploring feasibility | @strategist (FULL mode) | One deep analysis, not three opinions |
 | "I have an idea for X" — feature proposal | @strategist (FULL mode) | Needs spec/plan, not debate |
 | "How should we handle X?" — open-ended design | @strategist (propose 2-3 approaches) | Strategist proposes options internally |
-| "Is X a good idea?" — low-stakes validation | @strategist (LITE mode) | Quick assessment, not worth 3 models |
-| "Is X a good idea?" — high-stakes validation | @council (3-agent fan-out) | Irreversible or expensive if wrong |
+| "Is X a good idea?" — medium-stakes, reversible | @strategist (DA mode) | One model argues both sides, then decides |
+| "Is X a good idea?" — low-stakes, quick check | @strategist (LITE mode) | 1-minute assessment, not worth any debate |
 
-**Rule:** If the idea has 2+ viable paths with genuine disagreement → council. If it needs one deep think or a plan → strategist. When in doubt, strategist is the default — council is reserved for decisions where being wrong is costly.
+**Council Gate:** Council ONLY fires when one of these is true:
+1. User explicitly requests it
+2. Decision is irreversible (data loss, migration, rewrite)
+3. Decision has 2+ genuinely competing paths AND high cost if wrong
+
+**Default for all other "should we" questions:** @strategist (DA mode or LITE mode). One model, both sides, one verdict. No fan-out, no extra tokens.
+
+## Strategist Devil's Advocate Mode (DA)
+
+When a medium-stakes decision needs pro/con analysis but not full council:
+
+1. **State the proposal** in one line
+2. **Present 2-3 strongest arguments FOR**
+3. **Present 2-3 strongest arguments AGAINST**
+4. **Weigh the evidence and give a verdict**
+5. **One pass, no fan-out, no multi-model**
+
+Use DA mode for: technology choices, library swaps, architectural patterns, workflow changes — anything reversible where a structured argument helps but 3 models is overkill.
 
 ## When to Delegate
 

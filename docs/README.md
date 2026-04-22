@@ -48,4 +48,4 @@ The core prompts use a Kahneman-style fast/slow operating heuristic. Treat it as
 
 ## Version
 
-1.6.1 — Tightened broad-review routing (`@explorer -> @auditor`) and minimum-effective slow mode for already-deliberative models
+1.7.0 — Scoped validation, incremental prompts, council gating, and skill renaming

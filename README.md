@@ -166,7 +166,7 @@ Three persistent memory systems survive across sessions:
 
 ## Version
 
-1.6.1 — Tightened broad-review routing (`@explorer -> @auditor`) and minimum-effective slow mode for already-deliberative models
+1.7.0 — Scoped validation, incremental prompts, council gating, and skill renaming
 
 ## License
 
