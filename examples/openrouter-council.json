@@ -1,10 +1,7 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "_comment": "OpenRouter-ready config — provider configured for optional OpenRouter use, but agents still inherit the active session model unless you add explicit overrides.",
-  "plugin": [
-    "oh-my-opencode-slim",
-    "micode"
-  ],
+  "_comment": "OpenRouter council config — councillors pinned to 3 distinct OpenRouter models for multi-LLM consensus. All other agents inherit from top-level model.",
+  "model": "opencode/kimi-k2.6",
   "mcp": {
     "brain-router": {
       "type": "local",
@@ -40,32 +37,51 @@
   "agent": {
     "orchestrator": {
       "mode": "primary",
-      "prompt_file": "agents/orchestrator.md"
+      "prompt_file": "agents/generated/orchestrator.md"
+    },
+    "explorer": {
+      "mode": "all",
+      "prompt_file": "agents/generated/explorer.md"
     },
     "strategist": {
       "mode": "all",
-      "prompt_file": "agents/strategist.md"
+      "prompt_file": "agents/generated/strategist.md"
     },
     "researcher": {
       "mode": "all",
-      "prompt_file": "agents/researcher.md"
+      "prompt_file": "agents/generated/researcher.md"
     },
     "designer": {
       "mode": "all",
-      "prompt_file": "agents/designer.md"
+      "prompt_file": "agents/generated/designer.md"
     },
     "auditor": {
       "mode": "all",
-      "prompt_file": "agents/auditor.md"
+      "prompt_file": "agents/generated/auditor.md"
     },
     "council": {
-      "mode": "all",
-      "prompt_file": "agents/council.md",
-      "note": "Provider is configured for OpenRouter, but councillors still inherit the active orchestrator/session model unless you add explicit agent-level overrides."
+      "mode": "subagent",
+      "prompt_file": "agents/generated/council.md",
+      "note": "Protocol reference only. Councillors inherit the active orchestrator/session model unless you add explicit agent-level overrides."
+    },
+    "council-advocate-for": {
+      "mode": "subagent",
+      "model": "openrouter/openai/gpt-oss-120b:free",
+      "prompt_file": "agents/generated/council-advocate-for.md"
+    },
+    "council-advocate-against": {
+      "mode": "subagent",
+      "model": "openrouter/xiaomi/mimo-v2-flash:free",
+      "prompt_file": "agents/generated/council-advocate-against.md"
+    },
+    "council-judge": {
+      "mode": "subagent",
+      "model": "openrouter/qwen/qwen3-235b-a22b-thinking-2507:free",
+      "prompt_file": "agents/generated/council-judge.md"
     },
     "generalist": {
       "mode": "all",
-      "prompt_file": "agents/generalist.md"
+      "prompt_file": "agents/generated/generalist.md"
     }
   },
   "provider": {
