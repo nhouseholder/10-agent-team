@@ -121,13 +121,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/generalist.md": "2e65a9512756b07966847bf6648be4dd346a7992447464a4c723a569458e749f",
+        "agents/generalist.md": "f6681d76cab3eab4ef1d865b38284b35799c8914802fcb14c6513c621d65f136",
         "_shared/cognitive-kernel.md": "6557cbbb870cee9d72966294de0a630162cef29970795fc643ac9e158518241d",
         "_shared/memory-systems.md": "7540395eb0301a01c466aa627cb86b9ae3068cb5abe542c7e4b59ad72b11262f",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "e62db9a0b833bfc2fb3c3f2e39ba0d9f2e8fda7b837f80972a37d8f8008b53ab",
-      "outputHash": "e988049db99d6ccdbea39a2a7cfd53d527144df0a6d19114b0b489908bcfc66a"
+      "inputsHash": "371b5944795456067b120c3a56a5ee6a926e98fa0043b6a3dca3e911ae3f208d",
+      "outputHash": "8e2b17ec0197fe9e51af16808ffdef33868fa2ef18221e0a723506e81454c729"
     },
     {
       "source": "agents/orchestrator.md",
@@ -139,13 +139,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/orchestrator.md": "8145e19cf47f3c7107e1a4081bb947f443bae1c649a7d19a7306569bc90fa221",
+        "agents/orchestrator.md": "0412b420bbdc8071dd2b306858b5fc84d1d77213324eeb13d27e4cd39802172b",
         "_shared/cognitive-kernel.md": "6557cbbb870cee9d72966294de0a630162cef29970795fc643ac9e158518241d",
         "_shared/memory-systems.md": "7540395eb0301a01c466aa627cb86b9ae3068cb5abe542c7e4b59ad72b11262f",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "890e5015407f16fb7f663aba30078952083b745a59b3fdcb0483995249c84bad",
-      "outputHash": "d71ca2b7524a8e2d5eb7a93e4c3a33bd9faa98bb2e35d783dea5978b0cbd88be"
+      "inputsHash": "fc215bdaa12fa848006774cd508173f752a4364352b6d251c35730f203057f85",
+      "outputHash": "a7339caf4f811a28e661cab9da6abfaa46f180c5dc1710dba6c4b210e5bff77a"
     },
     {
       "source": "agents/researcher.md",

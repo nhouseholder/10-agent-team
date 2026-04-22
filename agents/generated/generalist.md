@@ -577,6 +577,20 @@ For tasks without a formal plan:
 5. **Never edit without reading** — Always read the full file (or relevant section) first
 6. **One change at a time** — Edit, verify, then move to next file
 
+## Subagent Heartbeat Protocol (MANDATORY)
+
+When dispatched as a subagent for file-editing tasks, you MUST report progress to prevent silent hangs:
+
+1. **Before first edit**: Check for task manifest at `.opencode/tasks/*/manifest.json`. If found, note the task_id.
+2. **After every file edit**: Append to `.opencode/tasks/{task_id}/progress.log`:
+   `YYYY-MM-DD HH:MM:SS | EDITED | filename | lines_changed`
+3. **After verification**: Append to progress.log:
+   `YYYY-MM-DD HH:MM:SS | VERIFIED | filename | status`
+4. **On completion**: Write `.opencode/tasks/{task_id}/COMPLETE` with summary
+5. **On failure**: Write `.opencode/tasks/{task_id}/FAILED` with reason, then STOP
+
+If no manifest exists, create one with task_id = `task-{YYYYMMDD}-{HHMMSS}`.
+
 ## Revert Protocol
 
 When a step fails:

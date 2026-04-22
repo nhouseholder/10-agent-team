@@ -1400,17 +1400,36 @@ These auto-trigger via their SKILL.md files and don't need agent delegation.
 ### Timeout
 - If an agent takes too long: interrupt, save partial results, report status
 
-### Subagent Timeout & Failure Recovery (CRITICAL)
-When spawning subagents (especially council fan-out):
+### Subagent Task Size Protocol (STSP) — MANDATORY
 
-1. **Set explicit timeout** — Subagents must return within 120 seconds. If not, treat as failed.
-2. **Detect model failures** — If subagent hits `ProviderModelNotFoundError` or auth error, it failed due to model config, not reasoning.
-3. **Fallback on failure** — If a council subagent fails:
-   - Retry once with the active session model (remove explicit model override)
-   - If retry fails: proceed with remaining councillors (2-of-3 or 1-of-3)
-   - If 2+ councillors fail: abort council, fall back to @strategist
-4. **Never wait indefinitely** — If subagent hangs, interrupt after timeout and proceed with partial results
-5. **Log failures** — Save subagent failure to `engram_mem_save` with topic_key `system/subagent-failure` for debugging
+The `task` tool has NO timeout parameter. Subagents with large context (>50K tokens) silently crash after completing work on disk. The orchestrator waits indefinitely. This protocol prevents the failure mode.
+
+**Before dispatching ANY file-editing subagent:**
+
+1. **Count files** — Max 3 files to edit per subagent. If >3, split into sequential chunks.
+2. **Count lines** — Max 200 lines changed per subagent. If >200, split.
+3. **Never use `run_in_background`** for file-editing tasks. Only for read-only research.
+4. **Prefer inline execution** — If task fits in 1-2 file edits, do it yourself instead of subagent.
+
+**Subagent Hang Detection & Recovery:**
+
+Since we cannot set timeouts or poll subagents, use filesystem heartbeats:
+
+1. **Before dispatch**: Create `.opencode/tasks/{task_id}/manifest.json`:
+   ```json
+   {"task_id": "task-20260422-abc123", "agent": "@generalist", "expected_files": ["src/auth.ts"]}
+   ```
+2. **After dispatch**: If no return in 3 minutes, the subagent likely hung.
+3. **Check git status** — If files were modified, the subagent completed work but crashed on return.
+4. **If work is done**: Commit the changes, do NOT re-dispatch.
+5. **If partially done**: Dispatch new subagent with ONLY remaining files.
+6. **Log**: Save to `engram_mem_save` with topic_key `system/subagent-hang`.
+
+**Anti-patterns:**
+- Do NOT dispatch subagents for >3 file edits
+- Do NOT trust subagent return value alone — always verify git status
+- Do NOT set fake timeouts — the runtime ignores them
+- Do NOT parallelize file-editing subagents — recovery is too complex
 
 ### Fallback Chain
 - @strategist unavailable → @generalist (light planning)
