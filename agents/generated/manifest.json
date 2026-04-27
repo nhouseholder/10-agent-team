@@ -11,13 +11,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/auditor.md": "eb0203b2c72cb58bdc0ac9c92f2d9122a3c51b5ee0bea3fda475696fa5fbfc4a",
+        "agents/auditor.md": "401b0c8723fbc4d18add4f230a5cdd3257a8600d0bd171d446dda82893f99aca",
         "_shared/cognitive-kernel.md": "f0db243d8d7db8c68167bffa0a956cfbbb3ae5b0f9df3f21d765219f631fe96b",
         "_shared/memory-systems.md": "fdc5a315ca89801cea97fd17a0f41c0dca185b03608b1f61808c801316d50125",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "bebd6c9ec726f3da4e552c89544d75810f2d7d71baaa13d0214d386ddebcf124",
-      "outputHash": "078af7fb6575d647783b140bd413c9395bb252bdc47f0c83ecc62425d41fc1ff"
+      "inputsHash": "e4e2c77fc8543371e0a6cdfcbbe3fcb94d6c6eedb129fe3bc9fab2df0835bb0d",
+      "outputHash": "3da21d2e3a538bcd049c99b343b417ffa97c573083ca7de4b6b4d05ec111cce2"
     },
     {
       "source": "agents/council-advocate-against.md",
@@ -103,13 +103,13 @@
         "shared-memory-systems"
       ],
       "inputHashes": {
-        "agents/explorer.md": "64b58b62b1b7f4fc07f7d15c238a3ad989e7c039ebc4415af350962594f3c045",
+        "agents/explorer.md": "6fccddbba1761dc9bd7a7c269ed5159d8a11739cc6b72ff4554b8525dff858b6",
         "_shared/cognitive-kernel.md": "f0db243d8d7db8c68167bffa0a956cfbbb3ae5b0f9df3f21d765219f631fe96b",
         "_shared/memory-systems.md": "fdc5a315ca89801cea97fd17a0f41c0dca185b03608b1f61808c801316d50125",
         "_shared/completion-gate.md": "ef0345ec4e6dc89a710e905cd29102d1cd2efe84d423678c59fe4ddced1a1554"
       },
-      "inputsHash": "808788b828974e9910bd4a6cc0e2d33a3f8361b9f93f0d4968d39cc625a1ec9e",
-      "outputHash": "2050cf39fda6cc656a5304d91de7a2889c20bac73025db8a0c9fc4e1f2663e0c"
+      "inputsHash": "ab51ebc006de483d4ff6fe7d6f4ba4be71e911a5d1c04b0114877fe27a77c769",
+      "outputHash": "69de7844a49723a83e12800d3939200bdc32a2c6240ecb64e7a3a5cd9a095703"
     },
     {
       "source": "agents/generalist.md",
